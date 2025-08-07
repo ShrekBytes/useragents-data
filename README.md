@@ -2,7 +2,6 @@
 
 🤖 **Automated daily updates of the most current and common user agents from [useragents.me](https://useragents.me/)**
 
-[![Update User Agents](https://github.com/yourusername/user-agent-database/workflows/Update%20User%20Agents/badge.svg)](https://github.com/yourusername/user-agent-database/actions)
 
 ## 📁 Repository Structure
 
@@ -28,16 +27,22 @@ Each JSON file contains:
 
 ```json
 {
-  "scraped_at": "2025-01-XX 12:00:00Z",
-  "scraped_from": "https://useragents.me/",
+  "scraped_at": "2025-08-07T12:35:58.245289Z",
+  "scraped_from": "https://useragents.me",
   "type": "most_common_desktop",
-  "count": 12,
   "user_agents": [
-    {
-      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.10 Safari/605.1.1",
-      "share_percentage": 43.03,
-      "browser_info": "Safari 17.10, Mac OS X"
-    }
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.10 Safari/605.1.1",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.3",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.3",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.3",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36 Trailer/93.3.8652.5",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36 Edg/134.0.0.",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36 OPR/117.0.0.",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36 Edg/132.0.0.",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36 Edge/18.1958",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:136.0) Gecko/20100101 Firefox/136.",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.3"
   ]
 }
 ```
@@ -64,7 +69,7 @@ Each JSON file contains:
 ### JavaScript/Node.js
 ```javascript
 // Fetch most common desktop user agents
-const response = await fetch('https://raw.githubusercontent.com/yourusername/user-agent-database/main/common/desktop.json');
+const response = await fetch('https://raw.githubusercontent.com/ShrekBytes/user-agent-database/main/common/desktop.json');
 const data = await response.json();
 
 // Get a random desktop user agent
@@ -78,7 +83,7 @@ import requests
 import random
 
 # Fetch latest Android user agents
-response = requests.get('https://raw.githubusercontent.com/yourusername/user-agent-database/main/latest/android.json')
+response = requests.get('https://raw.githubusercontent.com/ShrekBytes/user-agent-database/main/latest/android.json')
 data = response.json()
 
 # Get a random Android user agent
@@ -89,7 +94,7 @@ print(random_ua['user_agent'])
 ### cURL
 ```bash
 # Get most common mobile user agents
-curl -s https://raw.githubusercontent.com/yourusername/user-agent-database/main/common/mobile.json | jq '.user_agents[]'
+curl -s https://raw.githubusercontent.com/ShrekBytes/user-agent-database/main/common/mobile.json | jq '.user_agents[]'
 ```
 
 ## 📈 Statistics
@@ -105,7 +110,7 @@ The database contains user agents categorized by:
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/user-agent-database.git
+git clone https://github.com/ShrekBytes/user-agent-database.git
 cd user-agent-database
 
 # Install dependencies
@@ -136,8 +141,6 @@ MIT License - see [LICENSE](LICENSE) file for details
 ## 🔗 Links
 
 - **Data Source**: [useragents.me](https://useragents.me/)
-- **GitHub Actions**: [Workflow runs](https://github.com/yourusername/user-agent-database/actions)
-- **Raw Data**: Access JSON files directly via GitHub's raw content URLs
 
 ---
 
