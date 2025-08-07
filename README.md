@@ -1,31 +1,35 @@
-# User Agent Database
+# User Agents Data
 
-🤖 **Automated scraping of user agents from [useragents.me](https://useragents.me/)**
+A comprehensive collection of user agent strings scraped from [useragents.me](https://useragents.me), automatically updated daily via GitHub Actions.
 
-A Python-based scraper that extracts and organizes user agent strings from useragents.me into categorized JSON files.
+## 📋 Overview
 
-## 📁 Repository Structure
+This repository contains a curated collection of user agent strings organized by device type and category. The data is automatically scraped and updated daily to ensure you have access to the most current and commonly used user agents for web scraping, testing, and development purposes.
+
+## 📁 Project Structure
 
 ```
-├── common/
-│   ├── desktop.json    # Most common desktop user agents
-│   └── mobile.json     # Most common mobile user agents
-├── latest/
-│   ├── windows.json    # Latest Windows desktop user agents
-│   ├── mac.json        # Latest Mac desktop user agents
-│   ├── linux.json      # Latest Linux desktop user agents
-│   ├── iphone.json     # Latest iPhone user agents
-│   ├── ipod.json       # Latest iPod user agents
-│   ├── ipad.json       # Latest iPad user agents
-│   └── android.json    # Latest Android mobile user agents
-├── scraper.py          # Python scraper script
-├── requirements.txt    # Python dependencies
-└── README.md          # This file
+useragents-data/
+├── common/                    # Most commonly used user agents
+│   ├── desktop.json          # Common desktop user agents
+│   └── mobile.json           # Common mobile user agents
+├── latest/                   # Latest user agents by platform
+│   ├── android.json          # Latest Android user agents
+│   ├── ipad.json            # Latest iPad user agents
+│   ├── iphone.json          # Latest iPhone user agents
+│   ├── ipod.json            # Latest iPod user agents
+│   ├── linux.json           # Latest Linux user agents
+│   ├── mac.json             # Latest macOS user agents
+│   └── windows.json         # Latest Windows user agents
+├── scraper.py               # Python scraper script
+├── requirements.txt          # Python dependencies
+└── .github/workflows/       # GitHub Actions automation
+    └── update-useragents.yml
 ```
 
 ## 📊 Data Format
 
-Each JSON file contains a simple structure with user agent strings:
+Each JSON file follows a consistent structure:
 
 ```json
 {
@@ -35,144 +39,163 @@ Each JSON file contains a simple structure with user agent strings:
   "user_agents": [
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.10 Safari/605.1.1",
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",
-    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
+    "..."
   ]
 }
 ```
 
-### Data Structure
+### Field Descriptions
 
-- `scraped_at`: ISO timestamp when the data was scraped
-- `scraped_from`: Source website URL
-- `type`: Category identifier (e.g., "most_common_desktop", "latest_android")
-- `user_agents`: Array of user agent strings
+- **`scraped_at`**: ISO 8601 timestamp when the data was scraped
+- **`scraped_from`**: Source website (always `https://useragents.me`)
+- **`type`**: Category identifier (e.g., `most_common_desktop`, `latest_windows`)
+- **`user_agents`**: Array of user agent strings
 
-## 🚀 Usage Examples
+## 🚀 Usage
+
+### Direct Usage
+
+You can use the JSON files directly in your projects:
+
+```python
+import json
+
+# Load desktop user agents
+with open('common/desktop.json', 'r') as f:
+    desktop_data = json.load(f)
+    user_agents = desktop_data['user_agents']
+
+# Use for web scraping
+import requests
+headers = {'User-Agent': user_agents[0]}
+response = requests.get('https://example.com', headers=headers)
+```
 
 ### JavaScript/Node.js
 
 ```javascript
-// Fetch most common desktop user agents
-const response = await fetch(
-  "https://raw.githubusercontent.com/your-username/useragents-data/main/common/desktop.json"
-);
-const data = await response.json();
+const fs = require("fs");
 
-// Get a random desktop user agent
-const randomUA =
-  data.user_agents[Math.floor(Math.random() * data.user_agents.length)];
-console.log(randomUA);
+// Load mobile user agents
+const mobileData = JSON.parse(fs.readFileSync("common/mobile.json", "utf8"));
+const userAgents = mobileData.user_agents;
+
+// Use in fetch requests
+fetch("https://example.com", {
+  headers: {
+    "User-Agent": userAgents[0],
+  },
+});
 ```
 
-### Python
-
-```python
-import requests
-import random
-
-# Fetch latest Android user agents
-response = requests.get('https://raw.githubusercontent.com/your-username/useragents-data/main/latest/android.json')
-data = response.json()
-
-# Get a random Android user agent
-random_ua = random.choice(data['user_agents'])
-print(random_ua)
-```
-
-### cURL
+### Shell Script
 
 ```bash
-# Get most common mobile user agents
-curl -s https://raw.githubusercontent.com/your-username/useragents-data/main/common/mobile.json | jq '.user_agents[]'
+# Get a random desktop user agent
+jq -r '.user_agents | .[0]' common/desktop.json
+
+# Get all mobile user agents
+jq -r '.user_agents[]' common/mobile.json
 ```
 
-## 🛠️ Running the Scraper Locally
+## 🔧 Local Development
 
 ### Prerequisites
 
-- Python 3.6+
-- pip (Python package installer)
+- Python 3.7+
+- pip
 
 ### Installation
 
+1. Clone the repository:
+
 ```bash
-# Clone the repository
-git clone https://github.com/your-username/useragents-data.git
+git clone https://github.com/yourusername/useragents-data.git
 cd useragents-data
+```
 
-# Install dependencies
+2. Install dependencies:
+
+```bash
 pip install -r requirements.txt
+```
 
-# Run the scraper
+3. Run the scraper:
+
+```bash
 python scraper.py
 ```
 
 ### Dependencies
 
-- `requests>=2.31.0` - HTTP library for making requests
-- `beautifulsoup4>=4.12.0` - HTML parsing library
+- `requests>=2.31.0` - HTTP library for web scraping
+- `beautifulsoup4>=4.12.0` - HTML parsing
 - `lxml>=4.9.0` - XML/HTML parser backend
 
-## 🔧 Scraper Features
+## 🤖 Automation
 
-The `UserAgentScraper` class provides:
+This repository uses GitHub Actions to automatically update the user agent data:
 
-- **Automatic session management** with realistic headers
-- **Error handling** for network issues and parsing errors
-- **Rate limiting** with small delays between requests
-- **Organized output** with categorized JSON files
-- **Timestamp tracking** for data freshness
+- **Schedule**: Runs daily at 12:00 UTC
+- **Manual Trigger**: Can be triggered manually via GitHub Actions
+- **Push Trigger**: Runs when `scraper.py` or workflow files are updated
 
-### Supported Categories
+The automation:
 
-**Common User Agents:**
-
-- Desktop (most common desktop browsers)
-- Mobile (most common mobile browsers)
-
-**Latest User Agents by Platform:**
-
-- Windows desktop
-- Mac desktop
-- Linux desktop
-- iPhone
-- iPod
-- iPad
-- Android mobile
+1. Scrapes the latest user agents from useragents.me
+2. Updates all JSON files with fresh data
+3. Commits and pushes changes if new data is available
+4. Creates a summary of the update process
 
 ## 📈 Data Categories
 
-The scraper extracts user agents from these sections on useragents.me:
+### Common User Agents (`common/`)
 
-- **Most Common Desktop**: High-traffic desktop browser user agents
-- **Most Common Mobile**: High-traffic mobile browser user agents
-- **Latest by Platform**: Recent user agents organized by operating system/device
+- **`desktop.json`**: Most frequently used desktop browser user agents
+- **`mobile.json`**: Most frequently used mobile browser user agents
 
-## ⚖️ Legal & Usage
+### Latest User Agents (`latest/`)
 
-- Data is publicly available from [useragents.me](https://useragents.me/)
-- User agents are factual browser identification strings
-- This repository provides organized, machine-readable access
-- Perfect for web scraping, testing, and development purposes
-- Please respect the source website's terms of service
+- **`android.json`**: Latest Android browser user agents
+- **`ipad.json`**: Latest iPad browser user agents
+- **`iphone.json`**: Latest iPhone browser user agents
+- **`ipod.json`**: Latest iPod browser user agents
+- **`linux.json`**: Latest Linux browser user agents
+- **`mac.json`**: Latest macOS browser user agents
+- **`windows.json`**: Latest Windows browser user agents
+
+## 🎯 Use Cases
+
+- **Web Scraping**: Rotate user agents to avoid detection
+- **Testing**: Test website compatibility across different browsers
+- **Development**: Simulate different devices and browsers
+- **Analytics**: Understand browser usage patterns
+- **Security Testing**: Test user agent validation
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. Create a feature branch
+3. Make your changes
+4. Test the scraper locally
+5. Submit a pull request
 
-## 📄 License
+## ⚠️ Disclaimer
 
-MIT License - see [LICENSE](LICENSE) file for details
+This data is scraped from [useragents.me](https://useragents.me) for educational and development purposes. Please respect the source website's terms of service and robots.txt when using this data.
 
-## 🔗 Links
+## 📊 Statistics
 
-- **Data Source**: [useragents.me](https://useragents.me/)
-- **Repository**: [GitHub](https://github.com/your-username/useragents-data)
+- **Update Frequency**: Daily
+- **Data Source**: useragents.me
+- **File Count**: 9 JSON files
+- **Total User Agents**: Varies by category (typically 10-50 per file)
+- **Last Updated**: See individual file timestamps
 
 ---
 
-**Note**: Replace `your-username` in the URLs with your actual GitHub username when using this README.
+**Note**: The data is automatically updated, so the actual user agent strings and counts may vary from what's shown in this README.
