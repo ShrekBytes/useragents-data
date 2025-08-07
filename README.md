@@ -98,6 +98,16 @@ jq -r '.user_agents | .[0]' common/desktop.json
 jq -r '.user_agents[]' common/mobile.json
 ```
 
+### cURL
+
+```bash
+# Use a desktop user agent with curl
+curl -H "User-Agent: $(jq -r '.user_agents[0]' common/desktop.json)" https://example.com
+
+# Use a mobile user agent with curl
+curl -H "User-Agent: $(jq -r '.user_agents[0]' common/mobile.json)" https://example.com
+```
+
 ## 🔧 Local Development
 
 ### Prerequisites
@@ -134,18 +144,7 @@ python scraper.py
 
 ## 🤖 Automation
 
-This repository uses GitHub Actions to automatically update the user agent data:
-
-- **Schedule**: Runs daily at 12:00 UTC
-- **Manual Trigger**: Can be triggered manually via GitHub Actions
-- **Push Trigger**: Runs when `scraper.py` or workflow files are updated
-
-The automation:
-
-1. Scrapes the latest user agents from useragents.me
-2. Updates all JSON files with fresh data
-3. Commits and pushes changes if new data is available
-4. Creates a summary of the update process
+This repository uses GitHub Actions to automatically update the user agent data daily at 12:00 UTC.
 
 ## 📈 Data Categories
 
