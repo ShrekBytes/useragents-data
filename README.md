@@ -170,16 +170,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test the scraper locally
-5. Submit a pull request
+Found a bug or have a feature request? [Open an issue](https://github.com/yourusername/useragents-data/issues) or submit a pull request.
 
 ## ⚠️ Disclaimer
 
 This data is scraped from [useragents.me](https://useragents.me) for educational and development purposes. Please respect the source website's terms of service and robots.txt when using this data.
-
----
-
-**Note**: The data is automatically updated, so the actual user agent strings and counts may vary from what's shown in this README.
