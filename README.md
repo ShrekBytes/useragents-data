@@ -1,7 +1,8 @@
 # User Agent Database
 
-🤖 **Automated daily updates of the most current and common user agents from [useragents.me](https://useragents.me/)**
+🤖 **Automated scraping of user agents from [useragents.me](https://useragents.me/)**
 
+A Python-based scraper that extracts and organizes user agent strings from useragents.me into categorized JSON files.
 
 ## 📁 Repository Structure
 
@@ -16,14 +17,15 @@
 │   ├── iphone.json     # Latest iPhone user agents
 │   ├── ipod.json       # Latest iPod user agents
 │   ├── ipad.json       # Latest iPad user agents
-│   ├── android.json    # Latest Android mobile user agents
-│   └── tablet.json     # Latest tablet user agents
-└── scraper.py          # Python scraper script
+│   └── android.json    # Latest Android mobile user agents
+├── scraper.py          # Python scraper script
+├── requirements.txt    # Python dependencies
+└── README.md          # This file
 ```
 
 ## 📊 Data Format
 
-Each JSON file contains:
+Each JSON file contains a simple structure with user agent strings:
 
 ```json
 {
@@ -32,93 +34,119 @@ Each JSON file contains:
   "type": "most_common_desktop",
   "user_agents": [
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.10 Safari/605.1.1",
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.3",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.3",
-    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.3",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36 Trailer/93.3.8652.5",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36 Edg/134.0.0.",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36 OPR/117.0.0.",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36 Edg/132.0.0.",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36 Edge/18.1958",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:136.0) Gecko/20100101 Firefox/136.",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.3"
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
   ]
 }
 ```
 
-### Common User Agents Format
-- `user_agent`: The actual user agent string
-- `share_percentage`: Percentage share in web traffic
-- `browser_info`: Browser and OS information
-- `device`: Device type (mobile only)
+### Data Structure
 
-### Latest User Agents Format
-- `user_agent`: The actual user agent string
-- `browser_info`: Browser and OS information
-- `device`: Device type (mobile categories only)
-
-## 🔄 Update Schedule
-
-- **Automatic updates**: Daily at 12:00 UTC via GitHub Actions
-- **Manual updates**: Can be triggered manually from the Actions tab
-- **Source monitoring**: Updates when scraper code changes
+- `scraped_at`: ISO timestamp when the data was scraped
+- `scraped_from`: Source website URL
+- `type`: Category identifier (e.g., "most_common_desktop", "latest_android")
+- `user_agents`: Array of user agent strings
 
 ## 🚀 Usage Examples
 
 ### JavaScript/Node.js
+
 ```javascript
 // Fetch most common desktop user agents
-const response = await fetch('https://raw.githubusercontent.com/ShrekBytes/user-agent-database/main/common/desktop.json');
+const response = await fetch(
+  "https://raw.githubusercontent.com/your-username/useragents-data/main/common/desktop.json"
+);
 const data = await response.json();
 
 // Get a random desktop user agent
-const randomUA = data.user_agents[Math.floor(Math.random() * data.user_agents.length)];
-console.log(randomUA.user_agent);
+const randomUA =
+  data.user_agents[Math.floor(Math.random() * data.user_agents.length)];
+console.log(randomUA);
 ```
 
 ### Python
+
 ```python
 import requests
 import random
 
 # Fetch latest Android user agents
-response = requests.get('https://raw.githubusercontent.com/ShrekBytes/user-agent-database/main/latest/android.json')
+response = requests.get('https://raw.githubusercontent.com/your-username/useragents-data/main/latest/android.json')
 data = response.json()
 
 # Get a random Android user agent
 random_ua = random.choice(data['user_agents'])
-print(random_ua['user_agent'])
+print(random_ua)
 ```
 
 ### cURL
+
 ```bash
 # Get most common mobile user agents
-curl -s https://raw.githubusercontent.com/ShrekBytes/user-agent-database/main/common/mobile.json | jq '.user_agents[]'
+curl -s https://raw.githubusercontent.com/your-username/useragents-data/main/common/mobile.json | jq '.user_agents[]'
 ```
-
-## 📈 Statistics
-
-The database contains user agents categorized by:
-- **Most Common**: Based on actual web traffic analysis
-- **Latest**: Most recent user agent strings by platform
-- **Desktop**: Windows, Mac, Linux
-- **Mobile**: iPhone, iPad, iPod, Android
-- **Tablets**: Cross-platform tablet user agents
 
 ## 🛠️ Running the Scraper Locally
 
+### Prerequisites
+
+- Python 3.6+
+- pip (Python package installer)
+
+### Installation
+
 ```bash
 # Clone the repository
-git clone https://github.com/ShrekBytes/user-agent-database.git
-cd user-agent-database
+git clone https://github.com/your-username/useragents-data.git
+cd useragents-data
 
 # Install dependencies
-pip install requests beautifulsoup4
+pip install -r requirements.txt
 
 # Run the scraper
 python scraper.py
 ```
+
+### Dependencies
+
+- `requests>=2.31.0` - HTTP library for making requests
+- `beautifulsoup4>=4.12.0` - HTML parsing library
+- `lxml>=4.9.0` - XML/HTML parser backend
+
+## 🔧 Scraper Features
+
+The `UserAgentScraper` class provides:
+
+- **Automatic session management** with realistic headers
+- **Error handling** for network issues and parsing errors
+- **Rate limiting** with small delays between requests
+- **Organized output** with categorized JSON files
+- **Timestamp tracking** for data freshness
+
+### Supported Categories
+
+**Common User Agents:**
+
+- Desktop (most common desktop browsers)
+- Mobile (most common mobile browsers)
+
+**Latest User Agents by Platform:**
+
+- Windows desktop
+- Mac desktop
+- Linux desktop
+- iPhone
+- iPod
+- iPad
+- Android mobile
+
+## 📈 Data Categories
+
+The scraper extracts user agents from these sections on useragents.me:
+
+- **Most Common Desktop**: High-traffic desktop browser user agents
+- **Most Common Mobile**: High-traffic mobile browser user agents
+- **Latest by Platform**: Recent user agents organized by operating system/device
 
 ## ⚖️ Legal & Usage
 
@@ -126,13 +154,15 @@ python scraper.py
 - User agents are factual browser identification strings
 - This repository provides organized, machine-readable access
 - Perfect for web scraping, testing, and development purposes
+- Please respect the source website's terms of service
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## 📄 License
 
@@ -141,7 +171,8 @@ MIT License - see [LICENSE](LICENSE) file for details
 ## 🔗 Links
 
 - **Data Source**: [useragents.me](https://useragents.me/)
+- **Repository**: [GitHub](https://github.com/your-username/useragents-data)
 
 ---
 
-**Last Updated**: Automatically updated daily by GitHub Actions 🤖
+**Note**: Replace `your-username` in the URLs with your actual GitHub username when using this README.
