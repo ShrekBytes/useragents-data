@@ -2,7 +2,7 @@ name: Update User Agents
 
 on:
   schedule:
-    # Run every day at 12:00 UTC (you can adjust this)
+    # Run every day at 12:00 UTC
     - cron: '0 12 * * *'
   workflow_dispatch: # Allow manual triggering
   push:
@@ -11,38 +11,40 @@ on:
       - 'scraper.py'
       - '.github/workflows/update-useragents.yml'
 
+# ✅ This is the missing part that fixes push permission
+permissions:
+  contents: write
+
 jobs:
   scrape-and-update:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-    
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.11'
-    
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install requests beautifulsoup4
-    
+
     - name: Run scraper
       run: python scraper.py
-    
+
     - name: Check for changes and commit
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        
-        # Add all JSON files
+
         git add common/ latest/ *.json || true
-        
-        # Check if there are any changes to commit
+
         if ! git diff --cached --quiet; then
           echo "Changes detected, committing..."
           git commit -m "Update user agents - $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
@@ -51,24 +53,24 @@ jobs:
         else
           echo "ℹ️  No changes to commit"
         fi
-    
+
     - name: Create summary
       run: |
         echo "# User Agent Update Summary" >> $GITHUB_STEP_SUMMARY
         echo "**Date:** $(date -u)" >> $GITHUB_STEP_SUMMARY
         echo "**Status:** ✅ Completed successfully" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        
+
         if [ -f "common/desktop.json" ]; then
           desktop_count=$(python -c "import json; print(len(json.load(open('common/desktop.json'))['user_agents']))" 2>/dev/null || echo "0")
           echo "- **Desktop User Agents:** $desktop_count" >> $GITHUB_STEP_SUMMARY
         fi
-        
+
         if [ -f "common/mobile.json" ]; then
           mobile_count=$(python -c "import json; print(len(json.load(open('common/mobile.json'))['user_agents']))" 2>/dev/null || echo "0")
           echo "- **Mobile User Agents:** $mobile_count" >> $GITHUB_STEP_SUMMARY
         fi
-        
+
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### Files Created/Updated:" >> $GITHUB_STEP_SUMMARY
         find common/ latest/ -name "*.json" -type f 2>/dev/null | sort >> $GITHUB_STEP_SUMMARY || echo "No files found" >> $GITHUB_STEP_SUMMARY
