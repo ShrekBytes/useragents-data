@@ -120,7 +120,7 @@ curl -H "User-Agent: $(jq -r '.user_agents[0]' common/mobile.json)" https://exam
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/yourusername/useragents-data.git
+git clone https://github.com/ShrekBytes/useragents-data.git
 cd useragents-data
 ```
 
@@ -169,7 +169,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🤝 Contributing
 
-Found a bug or have a feature request? [Open an issue](https://github.com/yourusername/useragents-data/issues) or submit a pull request.
+Found a bug or have a feature request? [Open an issue](https://github.com/ShrekBytes/useragents-data/issues) or submit a pull request.
 
 ## ⚠️ Disclaimer
 
