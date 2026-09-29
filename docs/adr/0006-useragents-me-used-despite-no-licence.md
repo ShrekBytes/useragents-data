@@ -17,8 +17,8 @@ Accepted consequences, all deliberate:
 - Records carry full provenance so any consumer can see which data came from where.
 - README attributes useragents.me explicitly rather than presenting the output as
   solely our own work.
-- The courtesy of contacting the site owner about intended use is owed, and its
-  absence does not block shipping.
+- The site owner was asked about the intended use and gave permission, with no
+  conditions attached.
 
 The exposure is pre-existing: this repo has carried a GPL-3.0 LICENSE since its first
 commit, while its README has always described it as MIT. Whichever is intended, that
@@ -29,3 +29,8 @@ more likely to be noticed, but it does not create the exposure.
 No source is load-bearing. Removing useragents.me entirely leaves a working, current,
 legally clean dataset built on CC0 and MIT sources — only the frequency counts are
 lost. That is the point of having more than one.
+
+Update: the site owner was contacted and confirmed that the use described here is
+permitted, with no conditions attached. No licence or terms were published in reply,
+so this rests on that permission rather than on a licence a reader can point to. The
+decision to use the source stands, and the exposure recorded above is closed.

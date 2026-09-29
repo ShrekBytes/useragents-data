@@ -105,9 +105,9 @@ class UserAgentsMe:
     The two overlap very little (2 of 27 on desktop, none on mobile or tablet), so
     taking both roughly triples what a single family yields.
 
-    Unlicensed and all rights reserved by default (ADR-0006). Nothing here is
-    load-bearing: removing it costs the dataset its frequency counts and nothing
-    else.
+    No licence published, all rights reserved by default, but the site owner has
+    permitted the use (ADR-0006). Nothing here is load-bearing: removing it costs the
+    dataset its frequency counts and nothing else.
     """
 
     name = "useragents.me"

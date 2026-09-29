@@ -192,8 +192,9 @@ version number is not a user agent.
 
 ### Attribution and licensing
 
-`useragents.me` publishes no licence, no terms of service, and no licence page; by
-default that means all rights reserved. We use it anyway, because it is the only
+`useragents.me` publishes no licence, no terms of service, and no licence page. The
+site owner has confirmed that the use described here is permitted, with no conditions
+attached — a permission, not a licence. We rely on it anyway, because it is the only
 source of real frequency data and dropping it would leave the dataset unable to
 answer the question most people have. This is a deliberate decision, recorded in
 [ADR-0006](docs/adr/0006-useragents-me-used-despite-no-licence.md).
