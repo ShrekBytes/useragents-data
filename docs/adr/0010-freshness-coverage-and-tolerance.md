@@ -54,9 +54,9 @@ correctness.
 
 ### Safari: not asserted, and the gap is left open
 
-Apple publishes no current version anywhere, in any format. That is the reason the
-previous comment gave, and it is true but not sufficient, because something
-machine-readable *does* exist and it would be easy to reach for.
+The comment this replaces said Safari publishes no machine-readable current version,
+and that was the reason for leaving it unasserted. Something machine-readable *does*
+exist and it would be easy to reach for.
 
 It is the documentation index behind `developer.apple.com`: JSON, grouped by
 Safari major, and it does report 27 today. It is not a statement about what has

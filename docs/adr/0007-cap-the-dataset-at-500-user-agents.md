@@ -13,8 +13,8 @@ The obvious rule — keep the most commonly observed strings — is wrong here, 
 visibly so. Measured frequency is dominated by old and degenerate strings: on
 desktop the top five are a bare `Mozilla/5.0 (Windows NT 10.0; Win64; x64)
 AppleWebKit/537.36` with no browser token at all, Chrome 120, Chrome 131 twice,
-and Safari 17.5 and 17.6. Current Chrome 153 sits seventh. Firefox 156, which is
-actually shipping, has no measured count at all and would be discarded first.
+and Safari 17.5 and 17.6. The current Chrome sits seventh, and the current Firefox
+has no measured count at all and would be discarded first.
 
 Trimming by frequency alone would therefore rebuild exactly the failure this
 rewrite exists to prevent: a dataset that looks healthy because it is full of

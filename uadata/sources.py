@@ -22,6 +22,9 @@ import requests
 from .model import Record, SourceError, SourceResult
 
 USER_AGENT = "useragents-data/2.0 (+https://github.com/ShrekBytes/useragents-data)"
+# Seconds one HTTP request may take, and — because `fidelity` reuses the same number
+# for its Node subprocess — the whole budget for one fidelity oracle. A parser that
+# cannot be run within it is reported as a failure, not a skip (ADR-0011).
 TIMEOUT = 30
 
 # The published week range moves (observed shifting between two fetches minutes

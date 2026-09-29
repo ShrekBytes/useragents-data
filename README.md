@@ -76,39 +76,73 @@ stops qualifying has its file deleted rather than left stale.
 
 ### `data/<category>.json` — Observed, canonical, schema v4
 
+`data/desktop.json` as published on 2026-09-29, with the two sources and 104 records
+after the first left out.
+
 ```json
 {
   "schema_version": 4,
   "kind": "observed",
-  "generated_at": "2026-09-29T09:47:35.722530+00:00",
+  "generated_at": "2026-09-29T13:15:20.284135+00:00",
   "category": "desktop",
   "sources": [
     {
       "name": "useragents.me",
       "status": "ok",
       "error": null,
-      "collected_at": "2026-09-29T09:47:33.174027+00:00",
+      "collected_at": "2026-09-29T13:15:18.977470+00:00",
       "records": 126,
       "by_category": {"bot": 20, "desktop": 47, "mobile": 39, "tablet": 20},
       "meta": {"window": "2026-09-20-to-2026-09-27"}
     }
   ],
   "freshness": {
-    "manifest": {"versions": {"windows": 155, "firefox": 156}, "errors": []},
-    "collection_max_majors": {"chrome": 154, "firefox": 156, "edge": 154},
-    "in_this_file_max_majors": {"chrome": 153, "firefox": 156, "edge": 154}
+    "manifest": {
+      "versions": {
+        "android": 155,
+        "edge_linux": 154,
+        "edge_macos": 154,
+        "edge_windows": 154,
+        "firefox": 157,
+        "firefox_esr": 140,
+        "linux": 154,
+        "mac": 155,
+        "windows": 155
+      },
+      "errors": []
+    },
+    "collection_max_majors": {
+      "edge": 154,
+      "opera": 137,
+      "samsung": 30,
+      "chrome_ios": 154,
+      "firefox_ios": 157,
+      "chrome": 155,
+      "firefox": 157,
+      "safari": 27
+    },
+    "in_this_file_max_majors": {
+      "edge": 154,
+      "opera": 137,
+      "samsung": 30,
+      "chrome_ios": null,
+      "firefox_ios": null,
+      "chrome": 155,
+      "firefox": 156,
+      "safari": 27
+    }
   },
   "user_agents": [
     {
-      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
       "kind": "observed",
       "os": "Windows 10",
-      "browser": "Chrome 153.0.0.0",
+      "browser": null,
       "device": null,
-      "count": 1029,
-      "percentage": 2.59,
+      "count": 10116,
+      "percentage": 25.48,
       "count_source": "useragents.me",
-      "sources": ["useragents.me", "winfuture23"],
+      "sources": ["useragents.me"],
       "synthesized_from": null
     }
   ]
@@ -134,12 +168,15 @@ measured, and every one of them carries `count: null`.
 
 ### `common/<category>.json` — legacy shape, unchanged keys
 
+`common/desktop.json` as published on 2026-09-29, with every string after the first
+left out.
+
 ```json
 {
-  "scraped_at": "2026-09-29T09:47:35.722530+00:00",
+  "scraped_at": "2026-09-29T13:15:20.284135+00:00",
   "scraped_from": ["useragents.me"],
   "type": "most_common_desktop",
-  "user_agents": ["Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36"]
+  "user_agents": ["Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"]
 }
 ```
 
@@ -157,15 +194,15 @@ there is no "most common" to publish. `data/` still carries the current strings.
 
 ### `synthetic/<category>.json` — Synthetic, schema v4
 
-`synthetic/desktop.json` as published on 2026-09-29, with the three records after
-the first left out. The file holds exactly one record per entry in
+`synthetic/desktop.json` as published on 2026-09-29, with the six records after the
+first left out. The file holds exactly one record per entry in
 `generated_from.templates`, and which templates those are changes from run to run.
 
 ```json
 {
   "schema_version": 4,
   "kind": "synthetic",
-  "generated_at": "2026-09-29T12:28:14.917902+00:00",
+  "generated_at": "2026-09-29T13:15:20.284135+00:00",
   "category": "desktop",
   "generated_from": {
     "manifest": {
@@ -174,7 +211,7 @@ the first left out. The file holds exactly one record per entry in
         "edge_linux": 154,
         "edge_macos": 154,
         "edge_windows": 154,
-        "firefox": 156,
+        "firefox": 157,
         "firefox_esr": 140,
         "linux": 154,
         "mac": 155,
@@ -182,7 +219,7 @@ the first left out. The file holds exactly one record per entry in
       },
       "errors": []
     },
-    "templates": ["chrome-mac", "edge-windows", "edge-linux", "firefox-firefox_esr-mac"]
+    "templates": ["chrome-mac", "edge-windows", "edge-linux", "firefox-firefox-windows", "firefox-firefox-mac", "firefox-firefox-linux", "firefox-firefox_esr-mac"]
   },
   "user_agents": [
     {

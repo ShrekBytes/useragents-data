@@ -259,12 +259,21 @@ no longer stands behind, and because the Observed corpus is what caused the with
 corpus-disjointness check would then fail with no build able to fix it. Pruning is scoped to
 `*.json` in `synthetic/`.
 
-**The withholding is steady state, and that is the design working.** As of this ADR a run against
-the live corpus generates 5 of 14 templates and withholds 9: the Observed corpus legitimately
-holds current Chrome, Edge and Firefox on the platforms it covers. Advance the manifest one major
-and 12 of 14 return. The two datasets cover different ground by construction — `data/` says what
-was seen, `synthetic/` says what a current client would send, and where they overlap the Observed
-record is the more useful answer, so that is where the string is published.
+**The withholding is steady state, and that is the design working.** A run against the
+live corpus generates only the templates the Observed corpus does not already hold: a
+template whose output is already witnessed is withheld, and how many that is changes
+with the corpus rather than with the build. `synthetic/withheld[already Observed]`
+names them on every run, and the ratio is not a property of this ADR.
+
+What was projected here has since been measured. The manifest advanced Firefox by one
+major and 3 of the 9 withheld templates returned, not the 12 expected here: only
+Firefox's entry moved, so only the Firefox strings the corpus was holding became
+generatable, and the Chrome and Edge ones stayed withheld. A template returns when the
+corpus stops holding the string the manifest produces, which is a property of the
+corpus, not of the manifest. The two datasets cover different ground by construction
+— `data/` says what was seen, `synthetic/` says what a current client would send, and
+where they overlap the Observed record is the more useful answer, so that is where the
+string is published.
 
 An empty Synthetic dataset is a **failure**, not an empty file. A file of zero records reads as
 "there are no Synthetic user agents", which is a claim.

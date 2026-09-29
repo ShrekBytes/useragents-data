@@ -158,6 +158,9 @@ def main(argv: list[str] | None = None) -> int:
     collection_max_majors = browsers.majors(
         r.user_agent for records in merged.values() for r in records
     )
+    # After the checks, never before: `check_regression` reads the previous build
+    # from `data/` on disk, so writing first would have it compare this build
+    # against itself and pass.
     for category, records in sorted(merged.items()):
         payload: dict[str, Any] = pipeline.build_payload(
             category, records, results, manifest, generated_at, collection_max_majors
