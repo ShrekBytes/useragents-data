@@ -1,14 +1,14 @@
 {
   "schema_version": 4,
   "kind": "observed",
-  "generated_at": "2026-09-29T13:15:20.284135+00:00",
+  "generated_at": "2026-09-29T17:20:11.168281+00:00",
   "category": "bot",
   "sources": [
     {
       "name": "useragents.me",
       "status": "ok",
       "error": null,
-      "collected_at": "2026-09-29T13:15:18.977470+00:00",
+      "collected_at": "2026-09-29T17:20:09.842549+00:00",
       "records": 126,
       "by_category": {
         "bot": 20,
@@ -39,7 +39,7 @@
       "name": "crawler-user-agents",
       "status": "ok",
       "error": null,
-      "collected_at": "2026-09-29T13:15:19.314280+00:00",
+      "collected_at": "2026-09-29T17:20:10.322690+00:00",
       "records": 2120,
       "by_category": {
         "bot": 2120
@@ -52,7 +52,7 @@
   "freshness": {
     "manifest": {
       "versions": {
-        "android": 155,
+        "android": 154,
         "edge_linux": 154,
         "edge_macos": 154,
         "edge_windows": 154,
