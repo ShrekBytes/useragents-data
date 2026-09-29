@@ -1,7 +1,7 @@
 {
   "schema_version": 4,
   "kind": "synthetic",
-  "generated_at": "2026-09-29T12:28:14.917902+00:00",
+  "generated_at": "2026-09-29T13:15:20.284135+00:00",
   "category": "desktop",
   "generated_from": {
     "manifest": {
@@ -10,7 +10,7 @@
         "edge_linux": 154,
         "edge_macos": 154,
         "edge_windows": 154,
-        "firefox": 156,
+        "firefox": 157,
         "firefox_esr": 140,
         "linux": 154,
         "mac": 155,
@@ -22,6 +22,9 @@
       "chrome-mac",
       "edge-windows",
       "edge-linux",
+      "firefox-firefox-windows",
+      "firefox-firefox-mac",
+      "firefox-firefox-linux",
       "firefox-firefox_esr-mac"
     ]
   },
@@ -61,6 +64,42 @@
       "count_source": null,
       "sources": [],
       "synthesized_from": "edge-linux"
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:157.0) Gecko/20100101 Firefox/157.0",
+      "kind": "synthetic",
+      "os": "Windows 10",
+      "browser": "Firefox 157",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [],
+      "synthesized_from": "firefox-firefox-windows"
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:157.0) Gecko/20100101 Firefox/157.0",
+      "kind": "synthetic",
+      "os": "macOS",
+      "browser": "Firefox 157",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [],
+      "synthesized_from": "firefox-firefox-mac"
+    },
+    {
+      "user_agent": "Mozilla/5.0 (X11; Linux x86_64; rv:157.0) Gecko/20100101 Firefox/157.0",
+      "kind": "synthetic",
+      "os": "Linux",
+      "browser": "Firefox 157",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [],
+      "synthesized_from": "firefox-firefox-linux"
     },
     {
       "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:140.0) Gecko/20100101 Firefox/140.0",
