@@ -1,7 +1,7 @@
 {
   "schema_version": 4,
   "kind": "synthetic",
-  "generated_at": "2026-09-29T12:28:14.917902+00:00",
+  "generated_at": "2026-09-29T13:15:20.284135+00:00",
   "category": "tablet",
   "generated_from": {
     "manifest": {
@@ -10,7 +10,7 @@
         "edge_linux": 154,
         "edge_macos": 154,
         "edge_windows": 154,
-        "firefox": 156,
+        "firefox": 157,
         "firefox_esr": 140,
         "linux": 154,
         "mac": 155,

@@ -1,14 +1,14 @@
 {
   "schema_version": 4,
   "kind": "observed",
-  "generated_at": "2026-09-29T12:28:14.917902+00:00",
+  "generated_at": "2026-09-29T13:15:20.284135+00:00",
   "category": "desktop",
   "sources": [
     {
       "name": "useragents.me",
       "status": "ok",
       "error": null,
-      "collected_at": "2026-09-29T12:28:11.819605+00:00",
+      "collected_at": "2026-09-29T13:15:18.977470+00:00",
       "records": 126,
       "by_category": {
         "bot": 20,
@@ -39,7 +39,7 @@
       "name": "crawler-user-agents",
       "status": "ok",
       "error": null,
-      "collected_at": "2026-09-29T12:28:12.066360+00:00",
+      "collected_at": "2026-09-29T13:15:19.314280+00:00",
       "records": 2120,
       "by_category": {
         "bot": 2120
@@ -56,7 +56,7 @@
         "edge_linux": 154,
         "edge_macos": 154,
         "edge_windows": 154,
-        "firefox": 156,
+        "firefox": 157,
         "firefox_esr": 140,
         "linux": 154,
         "mac": 155,
