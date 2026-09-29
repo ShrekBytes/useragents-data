@@ -401,7 +401,7 @@ def check_fidelity(records: list[Record], manifest: Manifest) -> list[Check]:
     One check per parser, so a failure says which one objected. A parser that could
     not be run fails rather than skips: the promise this dataset makes is that its
     strings were verified, and a verification that did not happen is not a
-    verification that passed (ADR-0005).
+    verification that passed (ADR-0011).
     """
     if not records:
         return []

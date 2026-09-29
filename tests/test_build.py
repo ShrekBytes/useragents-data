@@ -446,7 +446,7 @@ class BuildTests(unittest.TestCase):
         self.assertFalse(os.path.exists(pipeline.SYNTHETIC_DIR))
 
     def test_a_fidelity_failure_publishes_nothing_at_all(self):
-        # The three parts land as one unit (ADR-0005): a string nobody can verify
+        # The three parts land as one unit (ADR-0011): a string nobody can verify
         # is not published as Synthetic, and the Observed dataset is not published
         # on the back of a green tick the Synthetic checks never gave.
         with mock.patch.object(

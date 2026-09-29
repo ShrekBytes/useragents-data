@@ -359,7 +359,13 @@ class SeparationTests(unittest.TestCase):
 
 
 class FidelityTests(unittest.TestCase):
-    """Two real parsers, one question (ADR-0005)."""
+    """Two real parsers, three questions each (ADR-0011).
+
+    Family, major and OS name, per parser, because each one alone misses what the
+    others hide. The expected values come from the manifest and the template rather
+    than from the record's own labels (ADR-0005), so a record that mislabels itself
+    cannot be validated against its own mislabelling.
+    """
 
     def setUp(self):
         self.generated, self.withheld = records()
