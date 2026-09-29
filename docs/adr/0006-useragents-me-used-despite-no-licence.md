@@ -1,0 +1,29 @@
+# useragents.me is used as the primary source despite having no licence
+
+The site publishes dated JSON files under `/data/` with no licence, no terms of
+service, and no licence or terms page at all — `/terms`, `/about` and `/license`
+all return 404. Default copyright therefore applies and the data is nominally all
+rights reserved. We use it as the primary source anyway.
+
+The alternative was to drop it and run on CC0 data alone. That was rejected because
+useragents.me is the only source publishing real frequency data — `count` and
+`percentage` for observed traffic — and losing it would leave the dataset unable to
+answer "what do people actually send", which is the question most consumers of this
+repo are asking. The cost of dropping it is higher than the cost of accepting the
+ambiguity.
+
+Accepted consequences, all deliberate:
+
+- Records carry full provenance so any consumer can see which data came from where.
+- README attributes useragents.me explicitly rather than presenting the output as
+  solely our own work.
+- The courtesy of contacting the site owner about intended use is owed, and its
+  absence does not block shipping.
+
+The exposure is pre-existing: this repo has declared MIT over scraped content since
+its first commit. A clean JSON endpoint makes redistribution cheaper and therefore
+more likely to be noticed, but it does not create the exposure.
+
+No source is load-bearing. Removing useragents.me entirely leaves a working, current,
+legally clean dataset built on CC0 and MIT sources — only the frequency counts are
+lost. That is the point of having more than one.

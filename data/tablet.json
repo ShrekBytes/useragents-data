@@ -1,0 +1,278 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-09-29T10:16:08.979359+00:00",
+  "category": "tablet",
+  "sources": [
+    {
+      "name": "useragents.me",
+      "status": "ok",
+      "error": null,
+      "collected_at": "2026-09-29T10:16:07.423415+00:00",
+      "records": 126,
+      "by_category": {
+        "bot": 20,
+        "desktop": 47,
+        "mobile": 39,
+        "tablet": 20
+      },
+      "meta": {
+        "window": "2026-09-20-to-2026-09-27"
+      }
+    }
+  ],
+  "freshness": {
+    "manifest": {
+      "versions": {
+        "android": 155,
+        "firefox": 156,
+        "firefox_esr": 140,
+        "linux": 154,
+        "mac": 155,
+        "windows": 155
+      },
+      "errors": []
+    },
+    "collection_max_majors": {
+      "edge": 154,
+      "opera": 137,
+      "samsung": 30,
+      "chrome_ios": 154,
+      "firefox_ios": 157,
+      "chrome": 154,
+      "firefox": 156,
+      "safari": 27
+    },
+    "in_this_file_max_majors": {
+      "edge": null,
+      "opera": null,
+      "samsung": null,
+      "chrome_ios": 154,
+      "firefox_ios": 157,
+      "chrome": 153,
+      "firefox": 134,
+      "safari": 27
+    }
+  },
+  "user_agents": [
+    {
+      "user_agent": "Mozilla/5.0 (iPad; CPU OS 8_4 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) CriOS/43.0.2357.61 Mobile/12H143 Safari/600.1.4",
+      "os": "iOS 8.4",
+      "browser": "Chrome Mobile iOS 43.0.2357.61",
+      "device": "iPad",
+      "count": 235,
+      "percentage": 61.84,
+      "sources": [
+        "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Linux; Android 11; KFQUWI) AppleWebKit/537.36 (KHTML, like Gecko) Silk/152.3.3 like Chrome/152.0.7977.120 Safari/537.36",
+      "os": "Fire OS 8",
+      "browser": "Mobile Silk 152.3.3",
+      "device": "Fire 7 (2022)",
+      "count": 86,
+      "percentage": 22.63,
+      "sources": [
+        "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
+      "os": "Android 10",
+      "browser": "Chrome 152.0.0.0",
+      "device": "K",
+      "count": 11,
+      "percentage": 2.89,
+      "sources": [
+        "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (iPad; CPU OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1",
+      "os": "iPadOS 17.4",
+      "browser": "Mobile Safari 17.4",
+      "device": "iPad",
+      "count": 11,
+      "percentage": 2.89,
+      "sources": [
+        "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (iPad; CPU OS 18_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.3 Mobile/15E148 Safari/604.1",
+      "os": "iPadOS 18.3",
+      "browser": "Mobile Safari 18.3",
+      "device": "iPad",
+      "count": 8,
+      "percentage": 2.11,
+      "sources": [
+        "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (iPad; CPU OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Safari",
+      "os": "iPadOS 18.7",
+      "browser": "Mobile Safari",
+      "device": "iPad",
+      "count": 6,
+      "percentage": 1.58,
+      "sources": [
+        "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36",
+      "os": "Android 10",
+      "browser": "Chrome 153.0.0.0",
+      "device": "K",
+      "count": 5,
+      "percentage": 1.32,
+      "sources": [
+        "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Linux; Android 5.1.1; KFDOWI Build/LVY48F; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/108.0.5359.220 Safari/537.36",
+      "os": "Fire OS 5",
+      "browser": "Chrome Webview 108.0.5359.220",
+      "device": "Fire HD 8 (2017)",
+      "count": 3,
+      "percentage": 0.79,
+      "sources": [
+        "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Linux; Android 7.0; BTV-DL09) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Mobile Safari/537.36",
+      "os": "Android 7.0",
+      "browser": "Chrome Mobile 81.0.4044.138",
+      "device": "MediaPad M3",
+      "count": 3,
+      "percentage": 0.79,
+      "sources": [
+        "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (iPad; CPU OS 18_5_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/138.0.7204.156 Mobile/15E148 Safari/604.1",
+      "os": "iPadOS 18.5.0",
+      "browser": "Chrome Mobile iOS 138.0.7204.156",
+      "device": "iPad",
+      "count": 3,
+      "percentage": 0.79,
+      "sources": [
+        "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Android 9; Mobile; P20HD_ROW; rv:134.0esr) Gecko/134.0esr Firefox/134.0esr",
+      "os": "Android 9",
+      "browser": "Firefox Mobile 134.0",
+      "device": "P20HD",
+      "count": 2,
+      "percentage": 0.53,
+      "sources": [
+        "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36 EdgA/150.0.0.0",
+      "os": "Android 10",
+      "browser": "Microsoft Edge 150.0.0.0",
+      "device": "K",
+      "count": 2,
+      "percentage": 0.53,
+      "sources": [
+        "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (iPad; CPU OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148",
+      "os": "iPadOS 18.7",
+      "browser": "Mobile Safari",
+      "device": "iPad",
+      "count": 2,
+      "percentage": 0.53,
+      "sources": [
+        "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Linux; Android 10; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
+      "os": "Android 10",
+      "browser": "Chrome 112.0.0.0",
+      "device": null,
+      "count": 1,
+      "percentage": 0.26,
+      "sources": [
+        "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Linux; Android 4.4.2; LG-V410 Build/KOT49I.V41010d) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.103 Safari/537.36",
+      "os": "Android 4.4.2",
+      "browser": "Chrome 30.0.1599.103",
+      "device": "G Pad 7.0\" LTE",
+      "count": 1,
+      "percentage": 0.26,
+      "sources": [
+        "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (iPad; CPU OS 17_4 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148",
+      "os": "iPadOS 17.4",
+      "browser": "Mobile Safari",
+      "device": "iPad",
+      "count": 1,
+      "percentage": 0.26,
+      "sources": [
+        "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (iPad; CPU OS 15_8_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) FxiOS/157.0 Mobile/15E148 Safari/605.1.15",
+      "os": "iPadOS 15.8.1",
+      "browser": "Firefox Mobile iOS 157.0",
+      "device": "iPad",
+      "count": null,
+      "percentage": null,
+      "sources": [
+        "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (iPad; CPU OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/154.0.8037.55 Mobile/15E148 Safari/604.1",
+      "os": "iPadOS 18.7",
+      "browser": "Chrome Mobile iOS 154.0.8037.55",
+      "device": "iPad",
+      "count": null,
+      "percentage": null,
+      "sources": [
+        "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (iPad; CPU OS 18_7_8 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.0 Mobile/15E148 Safari/604.1",
+      "os": "iPadOS 27.0",
+      "browser": "Mobile Safari 27.0",
+      "device": "iPad",
+      "count": null,
+      "percentage": null,
+      "sources": [
+        "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (iPad; CPU OS 18_7_8 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.0 YaBrowser/26.8.7.447 Mobile/15E148 Safari/605.1",
+      "os": "iPadOS 27.0",
+      "browser": "Yandex Browser 26.8.7.447",
+      "device": "iPad",
+      "count": null,
+      "percentage": null,
+      "sources": [
+        "useragents.me"
+      ]
+    }
+  ]
+}

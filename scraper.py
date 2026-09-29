@@ -1,198 +1,132 @@
 #!/usr/bin/env python3
+"""Build the user agent dataset from every configured source.
+
+Sources are ingested independently: one failing does not stop the others, and the
+failure is reported rather than swallowed (ADR-0003). The run publishes only if the
+result passes the freshness, regression and shrinkage checks.
 """
-User Agent Scraper for useragents.me
-Scrapes and saves user agents in simple JSON format
-"""
+
+from __future__ import annotations
+
+import argparse
+import sys
+from datetime import datetime, timezone
+from typing import Any
 
 import requests
-from bs4 import BeautifulSoup
-import json
-import os
-from datetime import datetime
-import time
 
-class UserAgentScraper:
-    def __init__(self):
-        self.base_url = "https://useragents.me"
-        self.session = requests.Session()
-        self.session.headers.update({
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36'
-        })
-        
-    def scrape_page(self):
-        """Scrape the main useragents.me page"""
+from uadata import browsers, pipeline
+from uadata.manifest import fetch_manifest
+from uadata.model import SourceError, SourceResult
+from uadata.sources import USER_AGENT, UserAgentsMe
+
+# Adding a source is the only thing Phase 2 should need to touch here.
+SOURCES = [UserAgentsMe()]
+
+
+def _annotate(level: str, title: str, detail: str) -> None:
+    """Surface a condition on the Actions page and in the run summary."""
+    safe = detail.replace("%", "%25").replace("\r", " ").replace("\n", " ")
+    print(f"::{level} title={title}::{safe}")
+
+
+def _report(results: list[SourceResult], checks: list[pipeline.Check], manifest) -> None:
+    for result in results:
+        state = f"ok ({result.total} records)" if result.ok else f"FAILED: {result.error}"
+        _annotate("error" if not result.ok else "notice", result.name, state)
+    for check in checks:
+        if check.ok and check.level != "warning":
+            continue
+        _annotate(check.level, check.name, check.detail)
+
+    print("\n== sources ==")
+    for result in results:
+        detail = f"{result.total} records" + (f"  {result.meta}" if result.meta else "")
+        print(f"  {result.name:24} {'ok' if result.ok else 'FAILED':8} {detail}")
+    print("\n== manifest ==")
+    print(f"  {manifest.to_json()['versions'] or 'unavailable'}")
+    if manifest.errors:
+        for error in manifest.errors:
+            print(f"  ! {error}")
+    print("\n== checks ==")
+    for check in checks:
+        mark = "ok  " if check.ok else "FAIL"
+        print(f"  [{mark}] {check.name:34} {check.detail}")
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="run the checks and report without writing anything",
+    )
+    args = parser.parse_args(argv)
+
+    session = requests.Session()
+    session.headers.update({"User-Agent": USER_AGENT})
+
+    results: list[SourceResult] = []
+    for source in SOURCES:
         try:
-            response = self.session.get(self.base_url)
-            response.raise_for_status()
-            return BeautifulSoup(response.text, 'html.parser')
-        except Exception as e:
-            print(f"Error scraping page: {e}")
-            return None
-    
-    def extract_common_desktop(self, soup):
-        """Extract most common desktop user agents"""
-        try:
-            # Find the desktop section
-            desktop_section = soup.find('h2', id='most-common-desktop-useragents')
-            if not desktop_section:
-                return []
-            
-            # Find the table after this section
-            table = desktop_section.find_next('table')
-            if not table:
-                return []
-            
-            user_agents = []
-            rows = table.find('tbody').find_all('tr')
-            
-            for row in rows:
-                cells = row.find_all('td')
-                if len(cells) >= 3:
-                    ua_textarea = cells[2].find('textarea')
-                    if ua_textarea:
-                        user_agent = ua_textarea.get_text(strip=True)
-                        if user_agent and user_agent not in user_agents:
-                            user_agents.append(user_agent)
-            
-            return user_agents
-        except Exception as e:
-            print(f"Error extracting desktop user agents: {e}")
-            return []
-    
-    def extract_common_mobile(self, soup):
-        """Extract most common mobile user agents"""
-        try:
-            # Find the mobile section
-            mobile_section = soup.find('h2', id='most-common-mobile-useragents')
-            if not mobile_section:
-                return []
-            
-            # Find the table after this section
-            table = mobile_section.find_next('table')
-            if not table:
-                return []
-            
-            user_agents = []
-            rows = table.find('tbody').find_all('tr')
-            
-            for row in rows:
-                cells = row.find_all('td')
-                if len(cells) >= 4:
-                    ua_textarea = cells[3].find('textarea')
-                    if ua_textarea:
-                        user_agent = ua_textarea.get_text(strip=True)
-                        if user_agent and user_agent not in user_agents:
-                            user_agents.append(user_agent)
-            
-            return user_agents
-        except Exception as e:
-            print(f"Error extracting mobile user agents: {e}")
-            return []
-    
-    def extract_latest_by_section(self, soup, section_id):
-        """Extract latest user agents by section ID"""
-        try:
-            section = soup.find('h2', id=section_id)
-            if not section:
-                return []
-            
-            table = section.find_next('table')
-            if not table:
-                return []
-            
-            user_agents = []
-            tbody = table.find('tbody')
-            if not tbody:
-                return []
-                
-            rows = tbody.find_all('tr')
-            
-            for row in rows:
-                cells = row.find_all('td')
-                if len(cells) >= 2:
-                    # Find textarea in the last cell
-                    ua_textarea = cells[-1].find('textarea')
-                    if ua_textarea:
-                        user_agent = ua_textarea.get_text(strip=True)
-                        if user_agent and user_agent not in user_agents:
-                            user_agents.append(user_agent)
-            
-            return user_agents
-        except Exception as e:
-            print(f"Error extracting latest user agents for {section_id}: {e}")
-            return []
-    
-    def save_json(self, user_agents, filepath, ua_type):
-        """Save user agents to JSON file"""
-        try:
-            # Create directory if it doesn't exist
-            os.makedirs(os.path.dirname(filepath), exist_ok=True)
-            
-            # Create simple JSON structure
-            data = {
-                "scraped_at": datetime.utcnow().isoformat() + "Z",
-                "scraped_from": self.base_url,
-                "type": ua_type,
-                "user_agents": user_agents
-            }
-            
-            with open(filepath, 'w', encoding='utf-8') as f:
-                json.dump(data, f, indent=2, ensure_ascii=False)
-            
-            print(f"Saved {len(user_agents)} user agents to {filepath}")
-            return True
-        except Exception as e:
-            print(f"Error saving {filepath}: {e}")
-            return False
-    
-    def run(self):
-        """Main scraping function"""
-        print("Starting user agent scraping...")
-        
-        # Scrape the main page
-        soup = self.scrape_page()
-        if not soup:
-            print("Failed to scrape main page")
-            return False
-        
-        success_count = 0
-        
-        # Extract and save common desktop user agents
-        desktop_agents = self.extract_common_desktop(soup)
-        if desktop_agents:
-            if self.save_json(desktop_agents, "common/desktop.json", "most_common_desktop"):
-                success_count += 1
-        
-        # Extract and save common mobile user agents
-        mobile_agents = self.extract_common_mobile(soup)
-        if mobile_agents:
-            if self.save_json(mobile_agents, "common/mobile.json", "most_common_mobile"):
-                success_count += 1
-        
-        # Extract latest user agents by category
-        latest_sections = {
-            "latest-windows-desktop-useragents": ("latest/windows.json", "latest_windows"),
-            "latest-mac-desktop-useragents": ("latest/mac.json", "latest_mac"),
-            "latest-linux-desktop-useragents": ("latest/linux.json", "latest_linux"),
-            "latest-iphone-useragents": ("latest/iphone.json", "latest_iphone"),
-            "latest-ipod-useragents": ("latest/ipod.json", "latest_ipod"),
-            "latest-ipad-useragents": ("latest/ipad.json", "latest_ipad"),
-            "latest-android-mobile-useragents": ("latest/android.json", "latest_android"),
-            "latest-tablet-useragents": ("latest/tablet.json", "latest_tablet")
+            results.append(source.fetch(session))
+        except SourceError as exc:
+            results.append(SourceResult(name=source.name, error=str(exc)))
+        except Exception as exc:  # a plugin bug must not take the run down
+            results.append(SourceResult(name=source.name, error=f"{type(exc).__name__}: {exc}"))
+
+    manifest = fetch_manifest(session)
+    merged = pipeline.merge_sources(results)
+    checks = (
+        pipeline.check_freshness(merged, manifest)
+        + pipeline.check_regression(merged, pipeline.load_previous())
+        + pipeline.check_shrinkage(results, pipeline.load_history())
+    )
+
+    generated_at = datetime.now(timezone.utc).isoformat()
+    _report(results, checks, manifest)
+
+    if not merged:
+        print("\nNo data collected from any source. Nothing published.")
+        return 1
+
+    failed = [c for c in checks if not c.ok]
+    if failed:
+        print(f"\n{len(failed)} check(s) failed. Existing data left untouched.")
+        return 1
+    if args.check:
+        print("\n--check: all clear, nothing written.")
+        return 0
+
+    collection_max_majors = browsers.majors(
+        r.user_agent for records in merged.values() for r in records
+    )
+    for category, records in sorted(merged.items()):
+        payload: dict[str, Any] = pipeline.build_payload(
+            category, records, results, manifest, generated_at, collection_max_majors
+        )
+        pipeline.write_json(f"{pipeline.DATA_DIR}/{category}.json", payload)
+        pipeline.write_json(
+            f"{pipeline.LEGACY_DIR}/{category}.json",
+            pipeline.build_legacy(category, records, results, generated_at),
+        )
+        measured = sum(1 for r in records if r.count is not None)
+        print(f"  wrote {category:8} {len(records):4} records ({measured} measured)")
+
+    pipeline.append_history(
+        {
+            "generated_at": generated_at,
+            "sources": {r.name: r.total for r in results if r.ok},
         }
-        
-        for section_id, (filepath, ua_type) in latest_sections.items():
-            agents = self.extract_latest_by_section(soup, section_id)
-            if agents:
-                if self.save_json(agents, filepath, ua_type):
-                    success_count += 1
-            # Small delay between requests
-            time.sleep(0.1)
-        
-        print(f"Scraping completed! Successfully created {success_count} files.")
-        return success_count > 0
+    )
+
+    degraded = [r.name for r in results if not r.ok]
+    if degraded:
+        print(f"\nPublished with {len(degraded)} source(s) down: {', '.join(degraded)}")
+    else:
+        print("\nPublished from all sources.")
+    return 0
+
 
 if __name__ == "__main__":
-    scraper = UserAgentScraper()
-    success = scraper.run()
-    exit(0 if success else 1)
+    sys.exit(main())

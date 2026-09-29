@@ -1,0 +1,278 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-09-29T10:16:08.979359+00:00",
+  "category": "bot",
+  "sources": [
+    {
+      "name": "useragents.me",
+      "status": "ok",
+      "error": null,
+      "collected_at": "2026-09-29T10:16:07.423415+00:00",
+      "records": 126,
+      "by_category": {
+        "bot": 20,
+        "desktop": 47,
+        "mobile": 39,
+        "tablet": 20
+      },
+      "meta": {
+        "window": "2026-09-20-to-2026-09-27"
+      }
+    }
+  ],
+  "freshness": {
+    "manifest": {
+      "versions": {
+        "android": 155,
+        "firefox": 156,
+        "firefox_esr": 140,
+        "linux": 154,
+        "mac": 155,
+        "windows": 155
+      },
+      "errors": []
+    },
+    "collection_max_majors": {
+      "edge": 154,
+      "opera": 137,
+      "samsung": 30,
+      "chrome_ios": 154,
+      "firefox_ios": 157,
+      "chrome": 154,
+      "firefox": 156,
+      "safari": 27
+    },
+    "in_this_file_max_majors": {
+      "edge": null,
+      "opera": null,
+      "samsung": null,
+      "chrome_ios": null,
+      "firefox_ios": null,
+      "chrome": 131,
+      "firefox": null,
+      "safari": 17
+    }
+  },
+  "user_agents": [
+    {
+      "user_agent": "python-requests/2.34.2",
+      "os": null,
+      "browser": null,
+      "device": null,
+      "count": 103873,
+      "percentage": 71.09,
+      "sources": [
+        "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+      "os": null,
+      "browser": null,
+      "device": null,
+      "count": 16307,
+      "percentage": 11.16,
+      "sources": [
+        "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "curl/8.22.0",
+      "os": null,
+      "browser": null,
+      "device": null,
+      "count": 4064,
+      "percentage": 2.78,
+      "sources": [
+        "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "axios/1.20.0",
+      "os": null,
+      "browser": null,
+      "device": null,
+      "count": 3664,
+      "percentage": 2.51,
+      "sources": [
+        "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "GuzzleHttp/7",
+      "os": null,
+      "browser": null,
+      "device": null,
+      "count": 1573,
+      "percentage": 1.08,
+      "sources": [
+        "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; ClaudeBot/1.0; +claudebot@anthropic.com)",
+      "os": null,
+      "browser": null,
+      "device": null,
+      "count": 1440,
+      "percentage": 0.99,
+      "sources": [
+        "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (compatible; YiBot/1.0; +https://01.ai/)",
+      "os": null,
+      "browser": null,
+      "device": null,
+      "count": 1107,
+      "percentage": 0.76,
+      "sources": [
+        "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; PerplexityBot/1.0; +https://perplexity.ai/perplexitybot)",
+      "os": null,
+      "browser": null,
+      "device": null,
+      "count": 1103,
+      "percentage": 0.75,
+      "sources": [
+        "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (compatible; Qwenbot/1.0; +https://qwen.alibaba.com/)",
+      "os": null,
+      "browser": null,
+      "device": null,
+      "count": 1098,
+      "percentage": 0.75,
+      "sources": [
+        "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15 (Applebot/0.1)",
+      "os": null,
+      "browser": null,
+      "device": null,
+      "count": 1097,
+      "percentage": 0.75,
+      "sources": [
+        "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (compatible; DeepSeekBot/1.0; +https://www.deepseek.com/)",
+      "os": null,
+      "browser": null,
+      "device": null,
+      "count": 1097,
+      "percentage": 0.75,
+      "sources": [
+        "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (compatible; KimiBot/1.0; +https://kimi.ai/)",
+      "os": null,
+      "browser": null,
+      "device": null,
+      "count": 1089,
+      "percentage": 0.75,
+      "sources": [
+        "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko); compatible; ChatGPT-User/1.0; +https://openai.com/bot",
+      "os": null,
+      "browser": null,
+      "device": null,
+      "count": 1088,
+      "percentage": 0.74,
+      "sources": [
+        "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (compatible; PanguBot/1.0; +https://www.huaweicloud.com/)",
+      "os": null,
+      "browser": null,
+      "device": null,
+      "count": 1084,
+      "percentage": 0.74,
+      "sources": [
+        "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (compatible; MistralAI-User/1.0; +https://mistral.ai/)",
+      "os": null,
+      "browser": null,
+      "device": null,
+      "count": 1080,
+      "percentage": 0.74,
+      "sources": [
+        "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Claude-SearchBot/1.0; +claudebot@anthropic.com)",
+      "os": null,
+      "browser": null,
+      "device": null,
+      "count": 1080,
+      "percentage": 0.74,
+      "sources": [
+        "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Perplexity-User/1.0; +https://perplexity.ai/perplexitybot)",
+      "os": null,
+      "browser": null,
+      "device": null,
+      "count": 1075,
+      "percentage": 0.74,
+      "sources": [
+        "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36; compatible; OAI-SearchBot/1.4; +https://openai.com/searchbot",
+      "os": null,
+      "browser": null,
+      "device": null,
+      "count": 1065,
+      "percentage": 0.73,
+      "sources": [
+        "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "DuckAssistBot/1.1 (https://duckduckgo.com/duckassistbot)",
+      "os": null,
+      "browser": null,
+      "device": null,
+      "count": 1063,
+      "percentage": 0.73,
+      "sources": [
+        "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Claude-User/1.0; +claudebot@anthropic.com)",
+      "os": null,
+      "browser": null,
+      "device": null,
+      "count": 1061,
+      "percentage": 0.73,
+      "sources": [
+        "useragents.me"
+      ]
+    }
+  ]
+}
