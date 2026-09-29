@@ -1,14 +1,6 @@
 {
   "runs": [
     {
-      "generated_at": "2026-09-29T10:52:55.357645+00:00",
-      "sources": {
-        "useragents.me": 126,
-        "winfuture23": 150,
-        "crawler-user-agents": 2118
-      }
-    },
-    {
       "generated_at": "2026-09-29T11:04:12.025098+00:00",
       "sources": {
         "useragents.me": 126,
@@ -58,6 +50,14 @@
     },
     {
       "generated_at": "2026-09-29T12:20:22.755026+00:00",
+      "sources": {
+        "useragents.me": 126,
+        "winfuture23": 150,
+        "crawler-user-agents": 2120
+      }
+    },
+    {
+      "generated_at": "2026-09-29T12:28:14.917902+00:00",
       "sources": {
         "useragents.me": 126,
         "winfuture23": 150,
