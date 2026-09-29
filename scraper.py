@@ -77,10 +77,17 @@ def main(argv: list[str] | None = None) -> int:
 
     manifest = fetch_manifest(session)
     merged = pipeline.merge_sources(results)
+
+    # Cap before the checks run, so every check sees exactly what would be
+    # published. Capping afterwards would let a regression hide in the discarded
+    # tail, and would report freshness for records no consumer can see.
+    merged, discarded = pipeline.apply_caps(merged)
+
     checks = (
         pipeline.check_freshness(merged, manifest)
         + pipeline.check_regression(merged, pipeline.load_previous())
         + pipeline.check_shrinkage(results, pipeline.load_history())
+        + pipeline.check_caps(merged)
     )
 
     generated_at = datetime.now(timezone.utc).isoformat()
@@ -97,6 +104,8 @@ def main(argv: list[str] | None = None) -> int:
     if args.check:
         print("\n--check: all clear, nothing written.")
         return 0
+    if discarded:
+        print(f"  capped: discarded {discarded} record(s) over the ADR-0007 budget")
 
     collection_max_majors = browsers.majors(
         r.user_agent for records in merged.values() for r in records

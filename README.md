@@ -181,6 +181,7 @@ published data untouched.
 | --- | --- |
 | `freshness/<browser>` | Data that parses, builds and publishes while being months old. Fails if the dataset's newest version is more than one major behind what vendors report as shipping. Compared against Chrome and Firefox, which have machine-readable current versions. |
 | `regression/<category>/<browser>` | Losing a version we already published, or a browser family dropping out of a file entirely. Checked against **every** family, not only those with a vendor feed. A dataset that goes backwards is never published. |
+| `cap/categories`, `cap/total` | A Device Category with no sub-cap, or a dataset over the 500 budget. |
 | `shrinkage/<source>` | A source that stays up, returns valid JSON, and quietly returns less. Compared against the median of that source's last 8 runs: warn below 70%, fail below 50%. |
 
 A source that is **down** is reported and skipped, not counted as shrinkage — the
@@ -191,6 +192,34 @@ two consecutive failures a rolling GitHub issue is opened and kept updated.
 Builds run **weekly on Saturdays**. Sources publish weekly or every 48 hours, and
 Chrome and Edge ship a major every two weeks; a daily schedule produced nothing but
 no-op commits.
+
+## The 500 cap
+
+The repository holds at most **500 distinct Observed User Agents**; anything beyond
+that is discarded on every build ([ADR-0007](docs/adr/0007-cap-the-dataset-at-500-user-agents.md)).
+
+| Device Category | Cap |
+| --- | --- |
+| desktop | 200 |
+| mobile | 200 |
+| tablet | 50 |
+| bot | 50 |
+
+Sub-caps rather than one global cut, because a single frequency-ordered budget would
+be taken entirely by bots — roughly 69% of real traffic — leaving almost nothing for
+browsers.
+
+Within a category, records are already ordered measured-first by frequency, then
+unmeasured by newest browser version, and trimming keeps that order **except** that
+at least 20 slots are reserved for unmeasured records. This matters: measured
+frequency is dominated by old and degenerate strings. The single most common desktop
+UA carries no browser token at all, the next few are Chrome 120, Chrome 131 twice and
+Safari 17.5, and current Chrome 153 only ranks seventh. Trimming purely by frequency
+would evict every current browser and rebuild the staleness this pipeline exists to
+prevent.
+
+Synthetic UAs do not count against this budget — they are a separate dataset, and
+letting them consume it would silently shrink the observed data.
 
 ## Local development
 

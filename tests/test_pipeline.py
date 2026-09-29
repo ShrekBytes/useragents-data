@@ -215,6 +215,66 @@ class ShrinkageTests(unittest.TestCase):
         self.assertEqual(checks[0].level, "warning")
 
 
+class CapTests(unittest.TestCase):
+    @staticmethod
+    def measured(n, start=1):
+        return [record(f"Chrome/{100 + i}.0", count=start + i, sources=("s",)) for i in range(n)]
+
+    @staticmethod
+    def unmeasured(n):
+        return [record(f"Firefox/{200 + i}.0", sources=("s",)) for i in range(n)]
+
+    def test_current_versions_survive_a_flood_of_measured_traffic(self):
+        # The whole point of the reservation. Measured frequency is dominated by
+        # old strings, so a plain tail cut would evict every current browser.
+        ordered = pipeline.order_records(self.measured(400) + self.unmeasured(30))
+        capped, discarded = pipeline.apply_caps({"desktop": ordered})
+        kept_unmeasured = [r for r in capped["desktop"] if r.count is None]
+        self.assertEqual(len(kept_unmeasured), pipeline.RESERVED_UNMEASURED)
+        self.assertGreater(discarded, 0)
+
+    def test_unmeasured_are_the_newest_ones_kept(self):
+        ordered = pipeline.order_records(self.measured(400) + self.unmeasured(50))
+        capped, _ = pipeline.apply_caps({"desktop": ordered})
+        kept = [r.user_agent for r in capped["desktop"] if r.count is None]
+        # Newest first, so the reserved slots go to the most current strings.
+        self.assertEqual(kept[:2], ["Firefox/249.0", "Firefox/248.0"])
+
+    def test_category_respects_its_sub_cap(self):
+        ordered = pipeline.order_records(self.measured(500) + self.unmeasured(10))
+        capped, _ = pipeline.apply_caps({"bot": ordered})
+        self.assertEqual(len(capped["bot"]), pipeline.CATEGORY_CAPS["bot"])
+
+    def test_total_never_exceeds_the_budget(self):
+        merged = {
+            category: pipeline.order_records(self.measured(400) + self.unmeasured(30))
+            for category in pipeline.CATEGORY_CAPS
+        }
+        capped, _ = pipeline.apply_caps(merged)
+        self.assertLessEqual(
+            sum(len(v) for v in capped.values()), pipeline.TOTAL_CAP
+        )
+
+    def test_measured_may_still_fill_the_cap_when_there_is_no_reserve_to_protect(self):
+        capped, _ = pipeline.apply_caps({"bot": self.measured(300)})
+        self.assertEqual(len(capped["bot"]), pipeline.CATEGORY_CAPS["bot"])
+        self.assertTrue(all(r.count is not None for r in capped["bot"]))
+
+    def test_an_uncapped_category_is_an_error_not_a_silent_pass(self):
+        capped, _ = pipeline.apply_caps({"smart-tv": self.measured(900)})
+        check = next(c for c in pipeline.check_caps(capped) if c.name == "cap/categories")
+        self.assertFalse(check.ok)
+        self.assertIn("smart-tv", check.detail)
+
+    def test_check_caps_passes_on_a_realistic_dataset(self):
+        merged = {
+            category: pipeline.order_records(self.measured(40) + self.unmeasured(25))
+            for category in pipeline.CATEGORY_CAPS
+        }
+        checks = pipeline.check_caps(merged)
+        self.assertTrue(all(c.ok for c in checks), [c.detail for c in checks])
+
+
 class LegacyProjectionTests(unittest.TestCase):
     def test_only_measured_records_appear(self):
         # A "most common" list must not contain strings we cannot say are common.

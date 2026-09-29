@@ -40,6 +40,22 @@ FAIL_SHRINK = 0.50
 GRACE_RUNS = 4
 HISTORY_WINDOW = 8
 
+# The repository is a curated dataset, not an unbounded mirror of whatever a source
+# chooses to publish (ADR-0007).
+#
+# Sub-caps rather than one global number: a single frequency-ordered cut would be
+# taken entirely by bots, which are roughly 69% of real traffic, leaving almost
+# nothing for browsers. This split is editorial, not traffic-proportional.
+CATEGORY_CAPS = {"desktop": 200, "mobile": 200, "tablet": 50, "bot": 50}
+TOTAL_CAP = sum(CATEGORY_CAPS.values())
+assert TOTAL_CAP == 500, "the budget is 500 in total; adjust ADR-0007 if this changes"
+
+# Slots within a category's cap that measured records may not consume. Measured
+# frequency is dominated by old and degenerate strings — the most common desktop UA
+# has no browser token at all — so trimming purely by frequency would evict every
+# current browser and rebuild the staleness this pipeline exists to prevent.
+RESERVED_UNMEASURED = 20
+
 # Freshness is checked against these families only, because it needs a vendor to
 # compare with. Regression is checked against every family in
 # `browsers.FAMILY_NAMES`, since it only needs what we published last time.
@@ -95,6 +111,60 @@ def order_records(records: list[Record]) -> list[Record]:
         key=lambda r: (-newest_major(r.user_agent), r.user_agent),
     )
     return measured + unmeasured
+
+
+def apply_caps(merged: dict[str, list[Record]]) -> tuple[dict[str, list[Record]], int]:
+    """Trim every category to its sub-cap, protecting current versions.
+
+    Each category reserves slots for unmeasured records. Measured traffic is
+    dominated by old and degenerate strings — the single most common desktop UA
+    carries no browser token at all — so a plain tail cut would discard the current
+    browsers first and rebuild the staleness this pipeline exists to prevent.
+
+    A category with no sub-cap passes through untouched; `check_caps` fails the
+    build on it rather than this function guessing a number.
+
+    Returns the capped dataset and how many records were discarded.
+    """
+    capped: dict[str, list[Record]] = {}
+    discarded = 0
+    for category, records in merged.items():
+        cap = CATEGORY_CAPS.get(category)
+        if cap is None:
+            capped[category] = records
+            continue
+        measured = [r for r in records if r.count is not None]
+        unmeasured = [r for r in records if r.count is None]
+        reserved = min(RESERVED_UNMEASURED, len(unmeasured))
+        kept_measured = measured[: max(0, cap - reserved)]
+        kept_unmeasured = unmeasured[: max(0, cap - len(kept_measured))]
+        capped[category] = kept_measured + kept_unmeasured
+        discarded += len(records) - len(capped[category])
+    return {c: v for c, v in capped.items() if v}, discarded
+
+
+def check_caps(merged: dict[str, list[Record]]) -> list[Check]:
+    """The published dataset must fit the budget, and no category may escape it."""
+    total = sum(len(v) for v in merged.values())
+    uncapped = sorted(set(merged) - set(CATEGORY_CAPS))
+    return [
+        Check(
+            "cap/categories",
+            not uncapped,
+            "error" if uncapped else "warning",
+            (
+                f"no sub-cap defined for {', '.join(uncapped)}; it would publish uncapped"
+                if uncapped
+                else f"{len(merged)} categories, all within their sub-caps"
+            ),
+        ),
+        Check(
+            "cap/total",
+            total <= TOTAL_CAP,
+            "error" if total > TOTAL_CAP else "warning",
+            f"{total} user agents, budget {TOTAL_CAP}",
+        ),
+    ]
 
 
 def newest_major(ua: str) -> int:

@@ -1,13 +1,13 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-09-29T10:16:08.979359+00:00",
+  "generated_at": "2026-09-29T10:36:15.584734+00:00",
   "category": "mobile",
   "sources": [
     {
       "name": "useragents.me",
       "status": "ok",
       "error": null,
-      "collected_at": "2026-09-29T10:16:07.423415+00:00",
+      "collected_at": "2026-09-29T10:36:13.292234+00:00",
       "records": 126,
       "by_category": {
         "bot": 20,
