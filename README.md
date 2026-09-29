@@ -158,15 +158,32 @@ there is no "most common" to publish. `data/` still carries the current strings.
 
 ### `synthetic/<category>.json` — Synthetic, schema v4
 
+`synthetic/desktop.json` as published on 2026-09-29, with the three records after
+the first left out. The file holds exactly one record per entry in
+`generated_from.templates`, and which templates those are changes from run to run.
+
 ```json
 {
   "schema_version": 4,
   "kind": "synthetic",
-  "generated_at": "2026-09-29T12:09:54.768924+00:00",
+  "generated_at": "2026-09-29T12:28:14.917902+00:00",
   "category": "desktop",
   "generated_from": {
-    "manifest": {"versions": {"windows": 155, "firefox": 156, "edge_windows": 154}, "errors": []},
-    "templates": ["chrome-mac", "edge-windows", "edge-linux"]
+    "manifest": {
+      "versions": {
+        "android": 155,
+        "edge_linux": 154,
+        "edge_macos": 154,
+        "edge_windows": 154,
+        "firefox": 156,
+        "firefox_esr": 140,
+        "linux": 154,
+        "mac": 155,
+        "windows": 155
+      },
+      "errors": []
+    },
+    "templates": ["chrome-mac", "edge-windows", "edge-linux", "firefox-firefox_esr-mac"]
   },
   "user_agents": [
     {
@@ -200,9 +217,9 @@ what happened.
 **Observed and Synthetic never share a file.** If a template's output is already
 in the Observed corpus it is withheld rather than published twice — a string
 cannot have been both witnessed and built. That means the two datasets overlap
-less than you might expect, and the `synthetic/collision` check names the
-withheld templates on every run. Where they *do* overlap in subject, the Observed
-record is the more useful answer: it carries real provenance and a real
+less than you might expect, and the `synthetic/withheld[already Observed]` check
+names the withheld templates on every run. Where they *do* overlap in subject, the
+Observed record is the more useful answer: it carries real Provenance and a real
 frequency, so that is where the string is published.
 
 There is no `synthetic/bot.json`. A fabricated crawler string would name a bot
@@ -312,20 +329,35 @@ survive under CC0
 
 ## How staleness is prevented
 
-Nine checks run on every build. Any failure aborts the build and leaves the
-published data untouched.
+**Twenty-one checks** run on every build. Any failure aborts the build and leaves
+the published data untouched.
+
+A name in the table below is a pattern, not a single check: `coverage/<category>`
+is four checks on a normal run, one per Device Category, and `shrinkage/<source>`
+is one per configured source, up or down. Twenty-one is the count for a healthy
+build, and it moves only when something is wrong — a vendor we cannot read adds a
+`synthetic/withheld[no manifest entry for …]`, and a lost browser family adds a
+`regression/…` row, one per category it was lost from.
 
 | Check | Guards against |
 | --- | --- |
 | `separation/<category>` | A published file holding both Observed and Synthetic UAs, or records of the wrong kind for the file ([ADR-0002](docs/adr/0002-observed-and-synthetic-never-mixed.md)). |
 | `synthetic/present` | A build that would publish an empty Synthetic dataset, which would read as "there are none". |
-| `synthetic/collision` | A string in both datasets. A string cannot have been both witnessed and built. Names the templates withheld because we already observe their output. |
+| `synthetic/collision` | A string in both datasets. A string cannot have been both witnessed and built. |
+| `synthetic/withheld[<reason>]` | A template that generated nothing, dropped without a name. `[already Observed]` is the design working — the witnessed copy is published instead, with real Provenance and a real frequency. `[no manifest entry for <product>]` is a vendor we cannot read: the run still publishes, but the dataset is smaller than the manifest supports ([ADR-0011](docs/adr/0011-synthetic-dataset-shape-and-fidelity.md)). |
 | `synthetic/fidelity/uap-core`, `synthetic/fidelity/ua-parser` | A generated string that a real User Agent parser does not identify as intended ([ADR-0011](docs/adr/0011-synthetic-dataset-shape-and-fidelity.md)). One check per parser, so a failure says which objected. |
 | `freshness/<browser>` | Data that parses, builds and publishes while being months old. Fails if the dataset's newest version is more than one major behind what vendors report as shipping. Asserted for Chrome, Edge and Firefox — every family whose vendor publishes a current version as a version ([ADR-0010](docs/adr/0010-freshness-coverage-and-tolerance.md)). Safari, Opera, Samsung Internet and the iOS forks have no such feed and are **not** asserted; the regression check is all that covers them. |
 | `regression/<category>/<browser>` | Losing a version we already published, or a browser family dropping out of a file entirely. Checked against **every** family, not only those with a vendor feed. Unexplained loss is never published. |
 | `coverage/<category>` | A Device Category coming out empty, and reports how many sources confirmed each one. This is the check bot strings need: they carry no browser family, so the regression check cannot see a whole category of crawlers disappear. |
 | `cap/categories`, `cap/total` | A Device Category with no sub-cap, or a dataset over the 500 budget. |
 | `shrinkage/<source>` | A source that stays up, returns valid JSON, and quietly returns less. Compared against the median of that source's last 8 runs: warn below 70%, fail below 50%. |
+
+Two names are not checks, because they abort the run before it reaches the check
+list: `separation/merge`, when a source hands over a Synthetic record, and
+`synthetic/generate`, when the generator produces a string it cannot classify. Both
+are defects in this repository rather than source outages, and both publish nothing
+([ADR-0002](docs/adr/0002-observed-and-synthetic-never-mixed.md),
+[ADR-0011](docs/adr/0011-synthetic-dataset-shape-and-fidelity.md)).
 
 A source that is **down** is reported and skipped, not counted as shrinkage — the
 run continues on the surviving sources and publishes their combined output
@@ -397,7 +429,7 @@ cd useragents-data
 pip install -r requirements.txt
 npm ci
 
-python -m unittest discover -s tests -t .   # 162 tests, no network
+python -m unittest discover -s tests -t .   # 178 tests, no network
 python scraper.py --check                   # run every check, write nothing
 python scraper.py                           # build and publish locally
 ```
