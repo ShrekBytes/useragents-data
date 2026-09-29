@@ -20,7 +20,7 @@ from uadata.manifest import Manifest
 from uadata.model import CATEGORIES, Record, SourceError, SourceResult
 
 CURRENT = Manifest(
-    versions={"windows": 155, "mac": 155, "android": 155, "firefox": 156, "edge_windows": 154, "safari": 27}
+    versions={"windows": 155, "mac": 155, "android": 155, "firefox": 156, "edge_windows": 154}
 )
 
 # The source whose measured frequency defines the published order. The fakes below

@@ -181,7 +181,7 @@ Three independent Observed sources, plus the version manifest
 | [useragents.me](https://useragents.me) | Measured traffic | **None published** | all four | weekly | The only source publishing measured frequency, and the one the published order is defined by. See below. |
 | [WinFuture23/real-world-user-agents](https://github.com/WinFuture23/real-world-user-agents) | Observed traffic | CC0-1.0 | desktop, mobile, tablet | 48h | ~150 live strings from WinFuture.de. The only current-version coverage here that is unambiguously redistributable. |
 | [monperrus/crawler-user-agents](https://github.com/monperrus/crawler-user-agents) | Observed crawlers | MIT | bot | on commit | ~2100 crawler strings seen in the wild, not an aggregate bot traffic table. |
-| Browser vendor release APIs | Version manifest | Public APIs | none | on release | ChromiumDash, Mozilla product-details, Microsoft's Edge update API, Apple's release-notes index. Used only for the freshness assertion. |
+| Browser vendor release APIs | Version manifest | Public APIs | none | on release | ChromiumDash, Mozilla product-details, Microsoft's Edge update API. Used only for the freshness assertion. |
 
 Every Device Category is confirmed by at least two of them, and `coverage/<category>`
 fails the build if any comes out empty. Nothing is load-bearing: any one source being
@@ -210,7 +210,7 @@ published data untouched.
 
 | Check | Guards against |
 | --- | --- |
-| `freshness/<browser>` | Data that parses, builds and publishes while being months old. Fails if the dataset's newest version is more than one major behind what vendors report as shipping. Asserted for Chrome, Edge, Firefox and Safari — every family with a vendor feed we can read ([ADR-0010](docs/adr/0010-freshness-coverage-and-tolerance.md)). |
+| `freshness/<browser>` | Data that parses, builds and publishes while being months old. Fails if the dataset's newest version is more than one major behind what vendors report as shipping. Asserted for Chrome, Edge and Firefox — every family whose vendor publishes a current version as a version ([ADR-0010](docs/adr/0010-freshness-coverage-and-tolerance.md)). Safari, Opera, Samsung Internet and the iOS forks have no such feed and are **not** asserted; the regression check is all that covers them. |
 | `regression/<category>/<browser>` | Losing a version we already published, or a browser family dropping out of a file entirely. Checked against **every** family, not only those with a vendor feed. Unexplained loss is never published. |
 | `coverage/<category>` | A Device Category coming out empty, and reports how many sources confirmed each one. This is the check bot strings need: they carry no browser family, so the regression check cannot see a whole category of crawlers disappear. |
 | `cap/categories`, `cap/total` | A Device Category with no sub-cap, or a dataset over the 500 budget. |
@@ -285,7 +285,7 @@ cd useragents-data
 
 pip install -r requirements.txt
 
-python -m unittest discover -s tests -t .   # 124 tests, no network
+python -m unittest discover -s tests -t .   # 120 tests, no network
 python scraper.py --check                   # run every check, write nothing
 python scraper.py                           # build and publish locally
 ```

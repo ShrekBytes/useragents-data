@@ -10,7 +10,6 @@ published data; a browser's version number is not a user agent.
 
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass, field
 from typing import Any, Callable
 
@@ -27,13 +26,10 @@ FIREFOX_VERSIONS = "https://product-details.mozilla.org/1.0/firefox_versions.jso
 # reads 154.0.4258.37, of which the freshness check compares the major.
 EDGE_PRODUCTS = "https://edgeupdates.microsoft.com/api/products"
 
-# Apple publishes no current-version feed of any kind. This is the documentation
-# index behind developer.apple.com, which is JSON and is grouped by Safari major.
-# It carries betas alongside shipped releases, so a major is only read once one of
-# its notes is not labelled a beta.
-SAFARI_RELEASE_NOTES = (
-    "https://developer.apple.com/tutorials/data/documentation/safari-release-notes.json"
-)
+# Safari is deliberately absent, and ADR-0010 records why: the only machine-readable
+# thing Apple publishes about its current version is a documentation index, which
+# reports versions Apple has not released to anyone and interleaves them with the
+# ones it has. The regression check covers Safari instead.
 
 # Chrome publishes a channel per platform, so it is the one product that costs
 # several requests. Every other vendor publishes one current version.
@@ -43,13 +39,6 @@ PLATFORMS = ("Windows", "Mac", "Linux", "Android")
 # `EdgiOS/` and `EdgA/`, which are not this repository's `edge` family, so an
 # entry for them would assert freshness about strings we do not hold.
 EDGE_PLATFORMS = {"Windows": "edge_windows", "MacOS": "edge_macos", "Linux": "edge_linux"}
-
-# Apple titles a pre-release article "Safari 27.2 Beta Release Notes" and the
-# shipped one "Safari 27 Release Notes". However recent it is, a beta has not
-# shipped, and a manifest that counted one would leave the build red for the
-# months before it does.
-_BETA_TITLE = re.compile(r"\bbeta\b", re.IGNORECASE)
-_MAJOR_SECTION = re.compile(r"Version\s+(\d+)")
 
 
 @dataclass
@@ -116,46 +105,6 @@ def _edge(session: requests.Session) -> list[tuple[str, int]]:
     return sorted(majors.items())
 
 
-def _ships(section: dict[str, Any], references: dict[str, Any]) -> bool:
-    """Has this Safari major a release Apple has not labelled a beta?
-
-    Conservative on purpose. A note we cannot resolve proves nothing either way,
-    so the major is not claimed: the worst outcome is a freshness check that skips
-    and says why, rather than one that fails every run over a beta.
-    """
-    identifiers = section.get("identifiers")
-    if not isinstance(identifiers, list):
-        return False
-    for identifier in identifiers:
-        reference = references.get(identifier)
-        title = reference.get("title") if isinstance(reference, dict) else None
-        if isinstance(title, str) and title and not _BETA_TITLE.search(title):
-            return True
-    return False
-
-
-def _safari(session: requests.Session) -> list[tuple[str, int]]:
-    """The newest Safari major that has shipped, read from Apple's own index."""
-    payload = get_json(session, SAFARI_RELEASE_NOTES)
-    if not isinstance(payload, dict):
-        raise SourceError("safari_release_notes: expected an object")
-    sections = payload.get("topicSections")
-    references = payload.get("references")
-    if not isinstance(sections, list) or not isinstance(references, dict):
-        raise SourceError("safari_release_notes: expected topicSections and references")
-
-    shipped = [
-        match.group(1)
-        for section in sections
-        if isinstance(section, dict)
-        and (match := _MAJOR_SECTION.fullmatch(str(section.get("title", ""))))
-        and _ships(section, references)
-    ]
-    if not shipped:
-        raise SourceError("safari_release_notes: no shipped release in the index")
-    return [("safari", max(int(major) for major in shipped))]
-
-
 def _collect(
     manifest: Manifest, label: str, read: Callable[[], list[tuple[str, int]]]
 ) -> None:
@@ -184,5 +133,4 @@ def fetch_manifest(session: requests.Session) -> Manifest:
         _collect(manifest, f"chrome/{platform}", lambda: _chrome(session, platform))
     _collect(manifest, "firefox", lambda: _firefox(session))
     _collect(manifest, "edge", lambda: _edge(session))
-    _collect(manifest, "safari", lambda: _safari(session))
     return manifest

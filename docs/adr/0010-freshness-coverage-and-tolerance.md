@@ -1,11 +1,12 @@
-# Freshness is asserted for every family with a readable vendor feed, within one major
+# Freshness is asserted for every family whose vendor publishes a current version, within one major
 
 `check_freshness` compares the newest version the dataset holds against the newest
 version a vendor says is shipping. Two things about that comparison were left to
 whatever the code happened to do. Both are now decided.
 
 1. **Coverage.** Chrome and Firefox were asserted because they were the only two
-   with a machine-readable current version. Edge and Safari are asserted too.
+   with a machine-readable current version. Edge is asserted too. Safari is not,
+   and the reason it is not is written down below.
 2. **Strictness.** The tolerance stays at one major, for a reason that is written
    down — and the reason it was originally given for does not survive checking.
 
@@ -14,18 +15,17 @@ established that one manifest serves both the staleness assertion and Synthetic 
 generation. This ADR decides which vendors that manifest reads and how the
 comparison is judged.
 
-## Coverage: the four feeds
+## Coverage: three feeds
 
-A family is asserted exactly when some vendor publishes a current version we can
-read. That is the whole rule, and it is what makes an unasserted family a decision
-rather than an oversight.
+A family is asserted exactly when its vendor publishes a current version, as a
+version, somewhere we can read. That is the whole rule, and it is what makes an
+unasserted family a decision rather than an oversight.
 
 | Family | Feed | What is read |
 | --- | --- | --- |
 | Chrome | ChromiumDash | `version`, one request per platform channel |
 | Firefox | Mozilla product-details | `LATEST_FIREFOX_VERSION` |
 | Edge | `edgeupdates.microsoft.com/api/products` | `ProductVersion` of the **Stable** product, per platform |
-| Safari | Apple's release-notes documentation index | newest major with a release that is not a beta |
 
 ### Edge was never as unavailable as it looked
 
@@ -52,42 +52,54 @@ carries — and `freshness/edge` reports itself as skipped. Skipped is a warning
 a claim that the data is current, so what is lost is an assertion rather than
 correctness.
 
-### Safari has no vendor feed, and still gets asserted
+### Safari: not asserted, and the gap is left open
 
-Apple publishes no current version anywhere, in any format. What it does publish
-is the documentation index behind `developer.apple.com`, which is JSON and is
-grouped by Safari major — and which lists **betas alongside shipped releases**, so
-the obvious reading of "the newest version in the index" is wrong. On the day the
-28 beta appears, that reading is 28, and it would fail every run for the months
-before 28 actually ships.
+Apple publishes no current version anywhere, in any format. That is the reason the
+previous comment gave, and it is true but not sufficient, because something
+machine-readable *does* exist and it would be easy to reach for.
 
-So a major is read only once one of its release notes is not titled a beta. A
-section whose notes cannot be resolved proves nothing either way and is not
-claimed. The direction of both errors is the same one: the worst outcome is a check
-that skips and says why, never one that fails every run over a beta.
+It is the documentation index behind `developer.apple.com`: JSON, grouped by
+Safari major, and it does report 27 today. It is not a statement about what has
+shipped. It is a statement about what Apple has written articles about, which
+includes versions nobody has:
 
-This is the weakest of the four feeds and is written down as such. It is still
-better than the alternative, which is Safari not being asserted at all while every
-other family is — Safari is on an operating-system release cycle, so a dataset can
-carry `Version/20.0` for a year with Chrome and Firefox current and nothing else
-complaining.
+- It lists **betas alongside shipped releases**. As of 2026-09-29 it carries
+  `Safari 27 Release Notes` and `Safari 27.2 Beta Release Notes` in the same
+  section. Reading the newest entry gives 28 on the day the 28 beta appears, and
+  would then fail every run for the months before 28 actually ships.
+- It is read by matching a section title of the form `Version <n>`, which is a
+  presentation decision. Apple renames a heading, and Safari's freshness assertion
+  stops silently degrading to a skipped check.
+- A version that has not changed is not stale, so if Apple stopped shipping Safari
+  entirely, this source would never say so.
 
-**What this feed cannot do.** It is Apple's documentation index, not a version
-feed, and two things follow that a feed would not have. It is read by matching the
-section title `Version <n>`, so a cosmetic change to that title stops the read —
-which degrades to a named error and a skipped check, and leaves Safari covered by
-the regression check alone. And if Apple stopped shipping a new Safari for a year,
-nothing here would notice, because a version that has not changed is not stale.
+Every one of those is survivable. The point is that each one is a way for the
+build to go red, or to stop asserting, for reasons that have nothing to do with
+whether our data is stale. A staleness oracle whose inputs are a vendor's editorial
+plans is not an oracle, and the failure mode is the expensive one: a red build
+operators learn to ignore, which is how thirteen months were lost in the first
+place.
+
+So **Safari is not asserted**, and the gap is left visible rather than closed with
+something we cannot stand behind. It is written into the ADR, into the comment on
+`MANIFEST_PRODUCTS`, and into a test that fails if anyone adds it back without
+reopening this decision.
+
+What Safari still has: the regression check covers every family, so a Safari that
+goes backwards, or vanishes from a file, is still a hard failure. What it does not
+have is a second line of defence against a freeze — a dataset could sit on
+`Version/20.0` indefinitely with Chrome, Edge and Firefox current and nothing else
+objecting. That is a real hole, and the honest response to a hole is to write it
+down, not to paper it over with a source that cannot be trusted to mean what we
+need it to mean.
 
 ### What is still not asserted
 
-Opera, Samsung Internet, CriOS and FxiOS have no vendor feed we can read, so
-nothing is asserted about them. The regression check still covers them: a family
-that goes backwards, or disappears, is a failure regardless of whether any vendor
-told us what current looks like. What they do not have is a second line of defence
-against a freeze. That is a real gap, and it is recorded rather than papered over
-by trusting some third party's list of current browser versions — a version we did
-not read from the vendor is not the vendor saying it.
+Opera, Samsung Internet, CriOS and FxiOS have no vendor feed at all, so nothing is
+asserted for them, on the same terms as Safari: the regression check covers them,
+a freeze does not. A version we did not read from the vendor is not the vendor
+saying it, and a third party's list of current browser versions is not a substitute
+for one.
 
 ## Strictness: one major, and not for the reason given
 
@@ -147,8 +159,11 @@ a parse of a sentence, and the JSON feed says the same thing more reliably.
 statement, through a mapping Apple changes on its own schedule. If the mapping
 breaks, the check fails every run and the reason is nowhere near the cause.
 
-**Reading Safari's index without the beta filter.** Simple, and wrong for most of
-the year.
+**Asserting Safari from Apple's documentation index.** It is machine-readable, it
+does report the current major, and with a beta filter it can be made to pass today.
+It is also a record of Apple's editorial plans rather than of what has shipped, and
+a freshness check built on it fails — or quietly stops checking — for reasons that
+have nothing to do with our data. See the Safari section above.
 
 **Marking Edge's undocumented endpoint too risky to use.** The risk is real, and
 it should be named honestly rather than talked away: if the shape changes, the

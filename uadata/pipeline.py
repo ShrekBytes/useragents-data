@@ -85,15 +85,15 @@ RESERVED_UNRANKED = 20
 # `browsers.FAMILY_NAMES`, since it only needs what we published last time.
 #
 # A family is in the first list exactly when some vendor publishes a current
-# version we can read. Opera, Samsung Internet and the iOS forks have no such
-# feed, so nothing is asserted about them and the regression check is all they
-# have — which is why coverage there rests on a family going backwards, not on a
-# family going stale (ADR-0010).
+# version we can read, as a version. Safari is not: Apple publishes none, and the
+# documentation index that stands in for one is not a statement about what has
+# shipped (ADR-0010). So Opera, Samsung Internet, Safari and the iOS forks are
+# covered by the regression check alone — a family going backwards, or vanishing,
+# is a failure, but a family quietly sitting still is not.
 MANIFEST_PRODUCTS = {
     "chrome": ("windows", "mac", "linux", "android"),
     "firefox": ("firefox",),
     "edge": ("edge_windows", "edge_macos", "edge_linux"),
-    "safari": ("safari",),
 }
 
 

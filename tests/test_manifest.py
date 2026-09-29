@@ -48,33 +48,6 @@ def edge(*releases, product="Stable"):
     ]
 
 
-def safari(*sections):
-    """The documentation index Apple serves, one section per Safari major.
-
-    `safari((27, "27 Release Notes", "27.2 Beta Release Notes"), (26, "26.6 Release
-    Notes"))` — the beta is the whole difficulty, and is why this takes a fixture.
-    A note of `None` is an identifier the index names but no longer resolves,
-    which is what a renamed or withdrawn article looks like.
-    """
-    topic_sections = []
-    references = {}
-    for major, *titles in sections:
-        identifiers = []
-        for index, title in enumerate(titles):
-            identifier = f"doc://com.apple.Safari-Release-Notes/safari-{major}-{index}"
-            identifiers.append(identifier)
-            if title is not None:
-                references[identifier] = {"title": f"Safari {title}"}
-        topic_sections.append(
-            {
-                "title": f"Version {major}",
-                "identifiers": identifiers,
-                "anchor": f"Version-{major}",
-            }
-        )
-    return {"topicSections": topic_sections, "references": references}
-
-
 def routes(**overrides):
     """Every vendor's URL -> payload, overridable one at a time.
 
@@ -93,9 +66,6 @@ def routes(**overrides):
                 ("MacOS", "154.0.4258.37"),
                 ("Linux", "154.0.4258.37"),
             )
-        ),
-        manifest.SAFARI_RELEASE_NOTES: Response(
-            safari((27, "27 Release Notes", "27.2 Beta Release Notes"))
         ),
         **overrides,
     }
@@ -159,45 +129,6 @@ class EdgeTests(unittest.TestCase):
         self.assertTrue(any(e.startswith("edge:") for e in result.errors), result.errors)
 
 
-class SafariTests(unittest.TestCase):
-    def fetch(self, payload):
-        return manifest.fetch_manifest(
-            FakeSession(routes(**{manifest.SAFARI_RELEASE_NOTES: Response(payload)}))
-        )
-
-    def test_it_is_the_newest_major_that_has_shipped(self):
-        versions = self.fetch(
-            safari((27, "27 Release Notes", "27.2 Beta Release Notes"), (26, "26.6 Release Notes"))
-        ).versions
-        self.assertEqual(versions["safari"], 27)
-
-    def test_a_beta_is_not_a_shipped_version(self):
-        # Apple publishes the beta's release notes in the same index as the
-        # shipping ones, so the obvious reading — "the newest version in the
-        # index" — is 28 on the day the 28 beta appears, and would then fail every
-        # run for the months before 28 actually ships.
-        versions = self.fetch(
-            safari((28, "28 Beta Release Notes"), (27, "27 Release Notes", "27.2 Beta Release Notes"))
-        ).versions
-        self.assertEqual(versions["safari"], 27)
-
-    def test_a_section_whose_notes_we_cannot_read_is_not_shipping(self):
-        # The conservative direction: if we cannot tell a beta from a release, we
-        # do not claim the version. A skipped check is visible, a wrong one is not.
-        versions = self.fetch(safari((28, None), (27, "27 Release Notes"))).versions
-        self.assertEqual(versions["safari"], 27)
-
-    def test_an_index_with_no_shipping_release_is_an_error(self):
-        result = self.fetch(safari((28, "28 Beta Release Notes")))
-        self.assertNotIn("safari", result.versions)
-        self.assertTrue(any(e.startswith("safari:") for e in result.errors), result.errors)
-
-    def test_an_index_it_cannot_read_is_an_error(self):
-        result = self.fetch({})
-        self.assertNotIn("safari", result.versions)
-        self.assertTrue(any(e.startswith("safari:") for e in result.errors), result.errors)
-
-
 class ManifestTests(unittest.TestCase):
     def test_every_vendor_contributes(self):
         result = manifest.fetch_manifest(FakeSession(routes()))
@@ -214,9 +145,16 @@ class ManifestTests(unittest.TestCase):
                 "edge_windows": 154,
                 "edge_macos": 154,
                 "edge_linux": 154,
-                "safari": 27,
             },
         )
+
+    def test_the_manifest_says_nothing_about_safari(self):
+        # ADR-0010: Apple publishes no current version, and the documentation index
+        # that stands in for one is not a statement about what has shipped. Nothing
+        # in the manifest may claim otherwise, so this is pinned rather than left to
+        # whoever next goes looking for a feed to add.
+        result = manifest.fetch_manifest(FakeSession(routes()))
+        self.assertEqual([k for k in result.versions if "safari" in k], [])
 
     def test_a_vendor_that_changes_shape_is_recorded_and_the_rest_survive(self):
         # A vendor we can no longer read must not cost us the vendors we can, and
@@ -226,17 +164,14 @@ class ManifestTests(unittest.TestCase):
             FakeSession(
                 routes(
                     **{
+                        manifest.FIREFOX_VERSIONS: Response([]),
                         manifest.EDGE_PRODUCTS: Response([{"Product": "Beta", "Releases": []}]),
-                        manifest.SAFARI_RELEASE_NOTES: Response({}),
                     }
                 )
             )
         )
-        self.assertEqual(
-            sorted(result.versions),
-            ["android", "firefox", "firefox_esr", "linux", "mac", "windows"],
-        )
-        self.assertEqual(sorted(e.split(":")[0] for e in result.errors), ["edge", "safari"])
+        self.assertEqual(sorted(result.versions), ["android", "linux", "mac", "windows"])
+        self.assertEqual(sorted(e.split(":")[0] for e in result.errors), ["edge", "firefox"])
 
     def test_one_chromiumdash_platform_failing_does_not_cost_the_others(self):
         # Chrome is the one vendor we ask per platform, so its failures are per
@@ -262,7 +197,6 @@ class ManifestTests(unittest.TestCase):
                 + [
                     manifest.FIREFOX_VERSIONS,
                     manifest.EDGE_PRODUCTS,
-                    manifest.SAFARI_RELEASE_NOTES,
                 ]
             ),
         )

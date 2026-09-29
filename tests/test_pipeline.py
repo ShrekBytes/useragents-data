@@ -223,9 +223,7 @@ class CoverageTests(unittest.TestCase):
 
 class FreshnessTests(unittest.TestCase):
     def setUp(self):
-        self.current = Manifest(
-            versions={"windows": 155, "firefox": 156, "edge_windows": 154, "safari": 27}
-        )
+        self.current = Manifest(versions={"windows": 155, "firefox": 156, "edge_windows": 154})
 
     def test_current_data_passes(self):
         checks = pipeline.check_freshness(
@@ -269,17 +267,15 @@ class FreshnessTests(unittest.TestCase):
         self.assertFalse(chrome.ok)
         self.assertIn("134", chrome.detail)
 
-    def test_edge_and_safari_are_asserted_against_their_vendors(self):
-        # Every family with a vendor feed is checked, not the two that were
-        # convenient when this was first written. An unasserted family is a family
-        # whose staleness nothing can see.
-        checks = pipeline.check_freshness(
-            {"desktop": [record(EDGE_154), record(SAFARI_27)]}, self.current
-        )
+    def test_every_family_with_a_vendor_feed_is_asserted(self):
+        # Every family a vendor publishes a current version for is checked, not the
+        # two that were convenient when this was first written. An unasserted family
+        # is a family whose staleness nothing can see.
+        checks = pipeline.check_freshness({"desktop": [record(EDGE_154)]}, self.current)
         self.assertTrue(all(c.ok for c in checks), [c.detail for c in checks])
         self.assertEqual(
             sorted(c.name for c in checks),
-            ["freshness/chrome", "freshness/edge", "freshness/firefox", "freshness/safari"],
+            ["freshness/chrome", "freshness/edge", "freshness/firefox"],
         )
 
     def test_a_stale_edge_fails(self):
@@ -293,15 +289,22 @@ class FreshnessTests(unittest.TestCase):
         self.assertEqual(edge.level, "error")
         self.assertIn("100", edge.detail)
 
-    def test_a_stale_safari_fails(self):
-        # Safari is the family most easily asserted for in name only: it rides the
-        # operating system release, so a dataset can carry Version/20 for a year
-        # with every other family current and nothing else complaining.
-        checks = pipeline.check_freshness({"desktop": [record(SAFARI_20)]}, self.current)
-        safari = next(c for c in checks if c.name == "freshness/safari")
-        self.assertFalse(safari.ok)
-        self.assertEqual(safari.level, "error")
-        self.assertIn("20", safari.detail)
+    def test_safari_is_not_asserted_and_that_is_deliberate(self):
+        # ADR-0010: Apple publishes no current version, and the documentation index
+        # that stands in for one reports versions it has not released to anyone.
+        # Asserting against it would put a red build in front of an operator for a
+        # reason that has nothing to do with our data.
+        #
+        # The last assertion is the cost, written down as executable fact: a dataset
+        # holding only Safari 20 passes. The regression check still catches a Safari
+        # that goes backwards or vanishes; what it cannot catch is one that sits
+        # still. Pinned so the absence cannot be re-added by accident.
+        checks = pipeline.check_freshness(
+            {"desktop": [record(SAFARI_20), record(SAFARI_27)]}, self.current
+        )
+        self.assertNotIn("safari", pipeline.MANIFEST_PRODUCTS)
+        self.assertNotIn("freshness/safari", [c.name for c in checks])
+        self.assertTrue(all(c.ok for c in checks), [c.detail for c in checks])
 
     def test_missing_manifest_skips_rather_than_passing_silently(self):
         checks = pipeline.check_freshness(
