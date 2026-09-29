@@ -420,9 +420,16 @@ class FidelityTests(unittest.TestCase):
                 fidelity._ua_parser(strings)
         self.assertIn("1 results for 2", str(caught.exception))
 
-    def test_the_browser_family_is_checked_and_not_just_the_version(self):
+    # The next four tests are one per guard, and each fixture is broken in exactly
+    # one way, so only the guard the test names can reject the record: the three
+    # parser comparisons are given labels their template agrees with, and the label
+    # check is given a string both parsers read as intended. Delete any one guard
+    # and exactly the test named after it fails, which is the only way to know a
+    # guard is load-bearing rather than merely present.
+
+    def test_the_browser_family_guard_rejects_a_string_a_parser_reads_as_another_browser(self):
         # The family is the thing a wrong token actually corrupts. A string whose
-        # `Firefox/156.0` token sits on Chromium scaffolding carries the right
+        # `OPR/155.0.0.0` token sits on Chromium scaffolding carries the right
         # version and the wrong browser, and a check comparing versions alone would
         # pass it — verified by deleting the family comparison, which leaves the
         # whole suite green.
@@ -442,10 +449,11 @@ class FidelityTests(unittest.TestCase):
                 self.assertFalse(check.ok, f"{parser} passed a Chrome string as Opera")
                 self.assertIn("155", check.detail)
 
-    def test_the_os_is_checked_and_not_just_the_browser(self):
+    def test_the_os_guard_rejects_a_string_a_parser_reads_on_another_platform(self):
         # Same argument one field over. A string that names the right browser on the
         # wrong platform parses as a browser and nothing else, so a version-only
-        # check never notices.
+        # check never notices. The `os` label matches its template — the string is
+        # what is wrong — so only the OS comparison can object.
         wrong_os = Record(
             user_agent=(
                 "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
@@ -462,25 +470,41 @@ class FidelityTests(unittest.TestCase):
                 self.assertFalse(check.ok, f"{parser} passed a Linux string as Windows")
                 self.assertIn("Linux", check.detail)
 
-    def test_the_version_is_checked_too(self):
+    def test_the_version_guard_rejects_a_stale_string_whose_labels_are_current(self):
         # The obvious one, kept explicit so the other two cannot quietly become the
-        # whole check.
+        # whole check — and so a stale string cannot slip through wearing a label
+        # that is itself wrong.
+        #
+        # The labels here are what the template says they should be for a current
+        # build: `browser` reads `Chrome 155`, the manifest's version, while the
+        # string carries `Chrome/140`. The label guard therefore has nothing to
+        # object to, and only the version comparison can reject this record. The
+        # previous fixture said `Chrome 140` in both places, so it failed on the
+        # label as well as the version: the test passed either way, and deleting
+        # the version comparison left the whole suite green. A record whose string
+        # was stale but whose labels were right passed both fidelity checks.
         stale = Record(
             user_agent=EXPECTED["chrome-windows"].replace("155", "140"),
             kind=SYNTHETIC,
             os="Windows 10",
-            browser="Chrome 140",
+            browser="Chrome 155",
             synthesized_from="chrome-windows",
         )
         for parser in fidelity.PARSERS:
             with self.subTest(parser=parser):
-                self.assertFalse(self.check_for([stale], parser).ok)
+                check = self.check_for([stale], parser)
+                self.assertFalse(check.ok)
+                # The version comparison named the version, not a label mismatch.
+                self.assertIn("Chrome 155 on Windows", check.detail)
+                self.assertNotIn("browser is", check.detail)
 
-    def test_a_mislabelled_record_fails_even_when_the_string_is_correct(self):
+    def test_the_label_guard_rejects_a_correct_string_with_the_wrong_labels(self):
         # The same defect one layer down. `os` and `browser` are published fields a
         # consumer filters on, so a label that disagrees with the string it sits on
-        # is a confidently wrong answer rather than an obviously broken one. Held
-        # apart from the parser assertions because it holds for every parser.
+        # is a confidently wrong answer rather than an obviously broken one. The
+        # string here is exactly right, so no parser comparison can object: only the
+        # label check can. Held apart from the parser assertions because it holds
+        # for every parser.
         mislabelled = Record(
             user_agent=EXPECTED["chrome-windows"],
             kind=SYNTHETIC,
@@ -647,6 +671,44 @@ class PublishedCorpusTests(unittest.TestCase):
 
     def strings(self, files):
         return {row["user_agent"] for payload in files.values() for row in payload["user_agents"]}
+
+    def published_manifest(self):
+        """The manifest the last build worked from, read off the Observed files.
+
+        `data/` rather than `synthetic/`, because the file this class is here to
+        catch missing is in the other directory — and because one manifest serves
+        both datasets, so the Observed files carry the one the Synthetic ones were
+        built from (ADR-0005).
+        """
+        return Manifest(**next(iter(self.observed.values()))["freshness"]["manifest"])
+
+    def test_every_category_this_build_would_publish_has_a_file(self):
+        # A missing file is a silent hole. The generator still knows the category,
+        # and "the directory is not empty" is still true, so deleting one of the
+        # published files cost four of the five strings this dataset held and left
+        # CI green.
+        #
+        # Withholding is steady state (ADR-0011): a template whose output the
+        # Observed corpus already holds legitimately has no file, and which
+        # templates those are changes from run to run. So the expected set is
+        # re-derived from the two artifacts the build itself read — the published
+        # Observed corpus and the published manifest — rather than listed here,
+        # where it would be wrong on the next run.
+        if not self.observed:
+            self.skipTest("no published Observed dataset in this checkout")
+        expected, _ = synthetic.build(self.published_manifest(), self.strings(self.observed))
+        for category, records in sorted(synthetic.by_category(expected).items()):
+            name = f"{category}.json"
+            with self.subTest(file=f"{pipeline.SYNTHETIC_DIR}/{name}"):
+                self.assertTrue(
+                    name in self.synthetic,
+                    f"{pipeline.SYNTHETIC_DIR}/{name} is missing; it should hold "
+                    f"{', '.join(sorted(r.synthesized_from for r in records))}",
+                )
+                self.assertEqual(
+                    {row["synthesized_from"] for row in self.synthetic[name]["user_agents"]},
+                    {r.synthesized_from for r in records},
+                )
 
     def test_the_two_datasets_are_published_separately(self):
         # Per-category filenames deliberately repeat across the two directories:

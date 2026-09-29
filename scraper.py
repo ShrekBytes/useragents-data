@@ -47,7 +47,11 @@ def _report(results: list[SourceResult], checks: list[pipeline.Check], manifest)
         state = f"ok ({result.total} records)" if result.ok else f"FAILED: {result.error}"
         _annotate("error" if not result.ok else "notice", result.name, state)
     for check in checks:
-        if check.ok and check.level != "warning":
+        # A level is how loud a condition is, not whether it failed. Withholding a
+        # template because its vendor could not be read is `ok` at error level: the
+        # build publishes what it has (ADR-0003) and must not look healthy while a
+        # vendor is dark (ADR-0011). Only the passing-and-unremarkable are skipped.
+        if check.ok and check.level == "warning":
             continue
         _annotate(check.level, check.name, check.detail)
 

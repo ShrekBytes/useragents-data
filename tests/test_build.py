@@ -93,14 +93,19 @@ class BuildTests(unittest.TestCase):
         self.cwd = os.getcwd()
         os.chdir(self.dir)
         self.addCleanup(os.chdir, self.cwd)
+        # What the last build printed, annotations included. Read after `build()`.
+        self.output = io.StringIO()
 
     def build(self, sources, manifest=CURRENT, argv=None, fill=True):
-        # The scraper narrates to stdout; keep it out of the test report.
+        # Keep the narration out of the test report, but hold on to it: the
+        # annotations are how a run reports a condition it deliberately tolerated.
+        # A fresh buffer per run, so `self.output` is what the last build printed.
         if fill:
             sources = [
                 FakeSource(s.name, fill_categories(s.records), s.error) for s in sources
             ]
-        with contextlib.redirect_stdout(io.StringIO()), mock.patch.object(
+        self.output = io.StringIO()
+        with contextlib.redirect_stdout(self.output), mock.patch.object(
             scraper, "SOURCES", sources
         ), mock.patch.object(scraper, "fetch_manifest", return_value=manifest):
             return scraper.main(argv or [])
@@ -451,6 +456,91 @@ class BuildTests(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertFalse(os.path.exists("data"))
         self.assertFalse(os.path.exists(pipeline.SYNTHETIC_DIR))
+
+    def test_a_check_that_passed_at_error_level_is_still_annotated(self):
+        # The rule the reporter is built on, stated for every shape a check can
+        # have. A level is how loud a condition is, not whether it failed:
+        # `synthetic/withheld[no manifest entry]` is `ok` at error level, and
+        # skipping it is what let a build with a dark vendor look completely
+        # healthy (ADR-0011). The only shape that stays unannotated is a check that
+        # passed at warning level — which is still in the checks table below.
+        checks = [
+            pipeline.Check("passed-but-serious", True, "error", "a vendor we cannot read"),
+            pipeline.Check("passed-and-fine", True, "warning", "nothing to see"),
+            pipeline.Check("failed-seriously", False, "error", "no records published"),
+            pipeline.Check("failed-mildly", False, "warning", "dataset is smaller"),
+        ]
+        annotations = io.StringIO()
+        with contextlib.redirect_stdout(annotations):
+            scraper._report([], checks, CURRENT)
+        reported = annotations.getvalue()
+        for check in checks:
+            unremarkable = check.ok and check.level == "warning"
+            with self.subTest(check=check.name, annotated=not unremarkable):
+                if unremarkable:
+                    self.assertNotIn(f"title={check.name}", reported)
+                else:
+                    self.assertIn(
+                        f"::{check.level} title={check.name}::{check.detail}", reported
+                    )
+        # The skipped one is still reported, just not as an annotation.
+        self.assertIn("passed-and-fine", reported.split("== checks ==")[1])
+
+    def test_an_unreadable_vendor_is_annotated_and_the_build_still_publishes(self):
+        # ADR-0003 and ADR-0011 together, end to end. A vendor feed we cannot read
+        # takes its templates out of the Synthetic dataset without blocking the
+        # Observed one — refusing to publish for a vendor being down is exactly
+        # what ADR-0003 forbids — and it is an error-level annotation all the same,
+        # because a run that publishes while a vendor is dark must not look like a
+        # run that found nothing wrong. Both halves are asserted: the annotation
+        # names the product and the templates withheld from it, and the Observed
+        # dataset is published anyway.
+        #
+        # Every product is present except Mozilla's two, which is what one vendor
+        # being dark looks like from here: the manifest degrades per product, and
+        # `build` withholds whatever it cannot read.
+        dark_vendor = Manifest(
+            versions={
+                "windows": 155,
+                "mac": 155,
+                "linux": 155,
+                "android": 155,
+                "edge_windows": 154,
+                "edge_macos": 154,
+                "edge_linux": 154,
+            }
+        )
+        code = self.build(
+            [FakeSource("s", {"desktop": desktop(155)})], manifest=dark_vendor
+        )
+        self.assertEqual(code, 0, "a dark vendor must not block the Observed dataset")
+        self.assertTrue(os.path.exists("data/desktop.json"))
+
+        printed = self.output.getvalue()
+        annotated = [
+            line
+            for line in printed.splitlines()
+            if line.startswith("::error title=synthetic/withheld[")
+        ]
+        self.assertTrue(annotated, f"no withheld-vendor annotation in:\n{printed}")
+        # The product is named in the title, the templates it cost in the detail.
+        self.assertTrue(
+            any(
+                "no manifest entry for firefox]" in line
+                and "firefox-firefox-windows" in line
+                and "firefox-firefox_esr-mac" not in line
+                for line in annotated
+            ),
+            f"no annotation naming the Firefox templates in:\n{printed}",
+        )
+        self.assertTrue(
+            any(
+                "no manifest entry for firefox_esr]" in line
+                and "firefox-firefox_esr-mac" in line
+                for line in annotated
+            ),
+            f"no annotation naming the Firefox ESR templates in:\n{printed}",
+        )
 
     def test_freshness_reports_both_scopes(self):
         # bot.json holds Chrome 131 while the collection holds 154. Publishing only

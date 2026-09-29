@@ -145,10 +145,14 @@ The generator also cross-checks each rendered string against this repository's o
 module — the same family detection the staleness oracle uses. A token in the wrong order fails
 there, before a parser is ever consulted.
 
-**Each of the three comparisons has a test that fails when it is deleted.** This is not
-formality: review found that removing the family and OS comparisons entirely left the whole suite
-green. `test_the_browser_family_is_checked_and_not_just_the_version` and its OS counterpart exist
-because a check nobody has tried to break is a check nobody has verified.
+**Each of the four guards has a test that fails when it is deleted** — the family, the OS, the
+version, and the label check, one test each, with a fixture broken in exactly one way so only the
+guard the test names can reject it. This is not formality: review found that removing the family
+and OS comparisons entirely left the whole suite green, and that a version fixture whose labels
+were *also* wrong passed for the wrong reason, so deleting the version comparison was invisible
+too. `test_the_browser_family_guard_rejects_a_string_a_parser_reads_as_another_browser` and its OS,
+version and label counterparts exist because a check nobody has tried to break is a check nobody
+has verified.
 
 
 ## Collision: a string cannot be both witnessed and built
@@ -167,6 +171,12 @@ dataset without anybody deciding to:
 | --- | --- | --- |
 | `synthetic/withheld[already Observed]` | warning | The design working. The Observed copy is published instead, with real provenance and a real frequency. |
 | `synthetic/withheld[no manifest entry for <product>]` | error | A vendor we cannot read. Degrades the dataset without blocking publication (ADR-0003), but is not a run that looks healthy. |
+
+A level says how loud a condition is, not whether it failed, and this is the only check that
+passes at error level: the dataset is smaller and nothing is wrong, except that a vendor is dark.
+So it is annotated rather than skipped, which is what puts it on the Actions page naming the
+product and the templates withheld from it, while the run still publishes and still exits zero.
+The reporter skips exactly one shape — a check that passed at warning level.
 
 A category that goes from published to withheld has its file **deleted** on the next successful
 build. A stale Synthetic file is worse than a missing one: it keeps presenting strings this build
