@@ -115,6 +115,7 @@ class AttributionTests(unittest.TestCase):
             plain.to_json(),
             {
                 "user_agent": CHROME_155,
+                "kind": "observed",
                 "os": None,
                 "browser": None,
                 "device": None,
@@ -122,6 +123,7 @@ class AttributionTests(unittest.TestCase):
                 "percentage": None,
                 "count_source": None,
                 "sources": ["crawler-user-agents"],
+                "synthesized_from": None,
             },
         )
 

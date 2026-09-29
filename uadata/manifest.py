@@ -16,7 +16,7 @@ from typing import Any, Callable
 import requests
 
 from .model import SourceError
-from .sources import TIMEOUT, get_json
+from .sources import get_json
 
 CHROMIUMDASH = "https://chromiumdash.appspot.com/fetch_releases?channel=Stable&platform={platform}&num=1"
 FIREFOX_VERSIONS = "https://product-details.mozilla.org/1.0/firefox_versions.json"

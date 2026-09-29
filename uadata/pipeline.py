@@ -18,16 +18,33 @@ import json
 import os
 import statistics
 from dataclasses import dataclass
-from datetime import datetime, timezone
 from typing import Any
 
-from . import browsers
+from . import browsers, fidelity, synthetic
 from .manifest import Manifest
-from .model import CATEGORIES, CATEGORY_LABELS, Record, SourceResult, merge_records
+from .model import (
+    CATEGORIES,
+    CATEGORY_LABELS,
+    OBSERVED,
+    SYNTHETIC,
+    MixedKindsError,
+    Record,
+    SourceResult,
+    merge_records,
+)
 
 DATA_DIR = "data"
 LEGACY_DIR = "common"
+# Synthetic UAs are a separate dataset, in a directory named for them. A consumer
+# reaches these only by asking for `synthetic/`; nothing globs them up by accident
+# (ADR-0002).
+SYNTHETIC_DIR = "synthetic"
 STATE_PATH = os.path.join("state", "history.json")
+
+# Bumped for `kind` and `synthesized_from` on every record. A consumer that
+# switches on `kind` and finds it absent in an old file should see a version it can
+# check rather than a `null` that reads as "Observed".
+SCHEMA_VERSION = 4
 
 # The one source whose measured frequency defines the published order (ADR-0009).
 #
@@ -106,6 +123,33 @@ class Check:
 
     def to_json(self) -> dict[str, Any]:
         return {"name": self.name, "ok": self.ok, "level": self.level, "detail": self.detail}
+
+
+def one_kind(records: list[Record], kind: str | None = None) -> str:
+    """The single kind these records share, or refuse (ADR-0002).
+
+    One predicate, several call sites, and the reason it is a function rather than
+    a convention: `build_payload` and `build_legacy` both publish files a consumer
+    opens without reading, so neither may be the only thing standing between a
+    fabricated string and somebody's `User-Agent` header. If the two ever
+    disagreed about what counts as a mixed set, one of them would quietly stop
+    protecting anything.
+
+    `kind` is what the caller asserts the file is about. A payload built for the
+    Synthetic dataset that somehow received Observed records is as wrong as a mixed
+    one, so the caller's claim is checked too, not just the records' agreement.
+    """
+    kinds = {record.kind for record in records}
+    if len(kinds) > 1:
+        raise MixedKindsError(
+            f"refusing to publish {sorted(kinds)} in one file; {len(records)} records"
+        )
+    found = kinds.pop() if kinds else None
+    if kind is not None and found is not None and found != kind:
+        raise MixedKindsError(
+            f"refusing to publish {found} records in the {kind} dataset"
+        )
+    return found or ""
 
 
 def merge_sources(results: list[SourceResult]) -> dict[str, list[Record]]:
@@ -213,6 +257,190 @@ def check_coverage(merged: dict[str, list[Record]]) -> list[Check]:
                 "warning",
                 f"{len(records)} records confirmed by {len(confirming)} source(s): "
                 f"{', '.join(sorted(confirming))}",
+            )
+        )
+    return checks
+
+
+def check_separation(merged: dict[str, list[Record]]) -> list[Check]:
+    """No published category may hold both kinds, or the wrong one.
+
+    The refusal itself lives in `one_kind`, called by the two functions that write
+    files. This states the same invariant as a check, so a run names the category
+    that is mixed instead of raising from inside a builder, and so every build
+    summary states the kind of what it published.
+    """
+    checks = []
+    for category in sorted(merged):
+        try:
+            kind = one_kind(merged[category], kind=OBSERVED)
+            checks.append(
+                Check(
+                    f"separation/{category}",
+                    True,
+                    "warning",
+                    f"{len(merged[category])} {kind} records",
+                )
+            )
+        except MixedKindsError as exc:
+            checks.append(Check(f"separation/{category}", False, "error", str(exc)))
+    return checks
+
+
+def check_synthetic(
+    records: list[Record],
+    observed: dict[str, list[Record]],
+    withheld: list[synthetic.Withheld],
+) -> list[Check]:
+    """The Synthetic dataset exists, is not empty, and shares no string with Observed.
+
+    A string in both sets is not a near-miss, it is a contradiction: the Observed
+    record says a source saw it and the Synthetic one says nobody ever did
+    (ADR-0002). The generator refuses to emit one; this is what proves it did.
+
+    Also names every withheld template, because both reasons for withholding are
+    silent: a string we already observe, and a manifest entry we could not read. A
+    browser leaving the dataset with nothing to show for it is the failure mode the
+    rest of this pipeline exists to prevent, and it would look exactly like a
+    healthy run.
+    """
+    if not records:
+        return [
+            Check(
+                "synthetic/present",
+                False,
+                "error",
+                "the manifest supported no Synthetic user agents; nothing would be published",
+            )
+        ]
+
+    seen = {record.user_agent for record in records}
+    collisions = sorted(
+        seen & {r.user_agent for values in observed.values() for r in values}
+    )
+    checks = [
+        Check("synthetic/present", True, "warning", f"{len(records)} Synthetic records"),
+        Check(
+            "synthetic/collision",
+            not collisions,
+            "error" if collisions else "warning",
+            f"also Observed: {collisions}"
+            if collisions
+            else f"{len(seen)} strings, none also Observed",
+        ),
+    ]
+
+    # Grouped by reason, because the two call for different responses: an
+    # "already Observed" template is the design working, a missing manifest entry is
+    # a vendor outage somebody has to look at.
+    by_reason: dict[str, list[str]] = {}
+    for item in withheld:
+        by_reason.setdefault(item.reason, []).append(item.name)
+    for reason, names in sorted(by_reason.items()):
+        level = "warning" if reason == "already Observed" else "error"
+        checks.append(
+            Check(
+                f"synthetic/withheld[{reason}]",
+                True,
+                level,
+                f"{len(names)} template(s): {', '.join(sorted(names))}",
+            )
+        )
+    return checks
+
+
+def _expected(record: Record, manifest: Manifest, parser: str) -> tuple[str, int, str]:
+    """What `parser` must report for this record, from the manifest and the template.
+
+    Never from the record's own `browser` or `os` label. A record that mislabels
+    itself would otherwise be checked against its own mislabelling, and a generator
+    bug that wrote the wrong family into the label would sail through the check
+    meant to catch it. The manifest is the one artifact both this check and the
+    staleness oracle read (ADR-0005), so the two cannot be satisfied by
+    disagreeing about what the version is.
+    """
+    template = synthetic.TEMPLATES_BY_NAME[record.synthesized_from]
+    return (
+        fidelity.browser_family(parser, template.family, mobile=template.mobile),
+        manifest.major(template.product),
+        fidelity.os_family(parser, template.os),
+    )
+
+
+def _mislabelled(record: Record, manifest: Manifest) -> str | None:
+    """How this record's published labels disagree with its template, or None.
+
+    A string that is right while the record describing it is wrong is the same
+    defect one layer down. `browser` and `os` are published fields a consumer
+    filters on, and a label that disagrees with the string it sits on is a wrong
+    answer given confidently rather than an obviously broken one. Checked against
+    the template, which is what generated both, so the two definitions of the same
+    product cannot drift apart.
+    """
+    template = synthetic.TEMPLATES_BY_NAME[record.synthesized_from]
+    major = manifest.major(template.product)
+    for field, published, expected in (
+        ("browser", record.browser, synthetic.browser_label(template, major)),
+        ("os", record.os, synthetic.os_label(template)),
+    ):
+        if published != expected:
+            return f"{field} is {published!r}, not {expected!r}"
+    return None
+
+
+def check_fidelity(records: list[Record], manifest: Manifest) -> list[Check]:
+    """Every Synthetic string must be identified correctly by two real parsers.
+
+    Three things per record, per parser: the browser family, the browser major, and
+    the OS name. Each is compared against the manifest and the template, and each
+    one alone would miss a defect the others hide — a Gecko string that happens to
+    carry the right `Firefox/` token still reads as the wrong family to one parser
+    and the wrong OS to both, and a Windows string that parses as Windows but as
+    Chrome when it is Edge would pass on version alone.
+
+    One check per parser, so a failure says which one objected. A parser that could
+    not be run fails rather than skips: the promise this dataset makes is that its
+    strings were verified, and a verification that did not happen is not a
+    verification that passed (ADR-0005).
+    """
+    if not records:
+        return []
+
+    # The labels are the same question regardless of which parser is asked, so they
+    # are judged once rather than repeated per parser.
+    mislabelled = [
+        f"{r.synthesized_from}: {reason}"
+        for r in records
+        if (reason := _mislabelled(r, manifest)) is not None
+    ]
+
+    checks = []
+    user_agents = tuple(dict.fromkeys(r.user_agent for r in records))
+    for parser in fidelity.PARSERS:
+        name = f"synthetic/fidelity/{parser}"
+        try:
+            parsed = fidelity.parse(parser, user_agents)
+        except fidelity.ParserUnavailable as exc:
+            checks.append(Check(name, False, "error", f"unavailable: {exc}"))
+            continue
+
+        wrong = list(mislabelled)
+        for record in records:
+            got = parsed[record.user_agent]
+            want = _expected(record, manifest, parser)
+            if (got.browser_family, got.browser_major, got.os_family) != want:
+                wrong.append(
+                    f"{record.synthesized_from}: read as {got}, "
+                    f"expected {want[0]} {want[1]} on {want[2]}"
+                )
+        checks.append(
+            Check(
+                name,
+                not wrong,
+                "error" if wrong else "warning",
+                "; ".join(wrong)
+                if wrong
+                else f"{len(user_agents)} user agents read as intended",
             )
         )
     return checks
@@ -470,8 +698,10 @@ def build_payload(
     Chrome 131 while the collection as a whole holds 154, and a reader given only
     the first would conclude the dataset is stale when it is not.
     """
+    one_kind(records, kind=OBSERVED)
     return {
-        "schema_version": 3,
+        "schema_version": SCHEMA_VERSION,
+        "kind": OBSERVED,
         "generated_at": generated_at,
         "category": category,
         "sources": [r.to_json() for r in results],
@@ -479,6 +709,35 @@ def build_payload(
             "manifest": manifest.to_json(),
             "collection_max_majors": collection_max_majors or {},
             "in_this_file_max_majors": browsers.majors(r.user_agent for r in records),
+        },
+        "user_agents": [r.to_json() for r in records],
+    }
+
+
+def build_synthetic_payload(
+    category: str, records: list[Record], manifest: Manifest, generated_at: str
+) -> dict[str, Any]:
+    """One category's Synthetic records, and the manifest they were built from.
+
+    The manifest travels with the file because it is the entire provenance of
+    every string in it. There is no source to name and no `collected_at` to
+    publish: nothing was collected, and a reader who wants to know how current
+    these are is asking the only question that has an answer, which is what the
+    vendors say is shipping.
+
+    `sources` and `freshness` are absent rather than empty. An empty `sources`
+    list beside a list of records would read as "sources ran and found nothing",
+    which is the opposite of what happened.
+    """
+    one_kind(records, kind=SYNTHETIC)
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "kind": SYNTHETIC,
+        "generated_at": generated_at,
+        "category": category,
+        "generated_from": {
+            "manifest": manifest.to_json(),
+            "templates": [r.synthesized_from for r in records],
         },
         "user_agents": [r.to_json() for r in records],
     }
@@ -503,6 +762,7 @@ def build_legacy(
     it cannot claim a provenance the file does not carry. On a run where the ordering
     source is down it is `[]` beside an empty list: nothing here came from anywhere.
     """
+    one_kind(records, kind=OBSERVED)
     ranking = [r.user_agent for r in records if r.measured_by(ORDERING_SOURCE)]
     return {
         "scraped_at": generated_at,

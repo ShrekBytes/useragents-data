@@ -2,4 +2,9 @@
 #
 # beautifulsoup4 and lxml were removed along with the HTML parsing they served
 # (ADR-0001). No dependency in this repository parses markup.
+#
+# ua-parser is not an ingestion dependency. It is the fidelity oracle: the build
+# refuses to publish a Synthetic User Agent that it cannot identify correctly
+# (ADR-0005), so it is needed to publish at all rather than to fetch anything.
 requests>=2.31.0
+ua-parser>=1.0.2

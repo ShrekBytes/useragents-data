@@ -2,22 +2,29 @@
 """Build the user agent dataset from every configured source.
 
 Sources are ingested independently: one failing does not stop the others, and the
-failure is reported rather than swallowed (ADR-0003). The run publishes only if the
-result passes the freshness, regression and shrinkage checks.
+failure is reported rather than swallowed (ADR-0003). The run publishes only if
+the result passes the freshness, regression and shrinkage checks, and if no
+published file mixes Observed with Synthetic UAs (ADR-0002).
+
+Synthetic UAs are built here too, from the same manifest the staleness oracle
+reads, and published to their own directory. They are generated last and checked
+last because they are the only part of the dataset nobody observed: every other
+string in it came out of a source that can be asked whether it is still there.
 """
 
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from datetime import datetime, timezone
 from typing import Any
 
 import requests
 
-from uadata import browsers, pipeline
+from uadata import browsers, pipeline, synthetic
 from uadata.manifest import fetch_manifest
-from uadata.model import SourceError, SourceResult
+from uadata.model import MixedKindsError, SourceError, SourceResult
 from uadata.sources import USER_AGENT, CrawlerUserAgents, UserAgentsMe, WinFuture23
 
 # Adding a source is the only thing Phase 2 should need to touch here.
@@ -81,7 +88,17 @@ def main(argv: list[str] | None = None) -> int:
             results.append(SourceResult(name=source.name, error=f"{type(exc).__name__}: {exc}"))
 
     manifest = fetch_manifest(session)
-    merged = pipeline.merge_sources(results)
+    try:
+        merged = pipeline.merge_sources(results)
+    except MixedKindsError as exc:
+        # A source handed over a Synthetic record. No source observes anything
+        # fabricated, so this is a source plugin that has lost track of what it is
+        # — and it is reported as a failed run rather than a traceback, because the
+        # operator reading the Actions page needs to know which source to look at
+        # (ADR-0002).
+        _annotate("error", "separation/merge", str(exc))
+        print(f"\n{exc}\nNothing published.")
+        return 1
 
     # Which sources could not be reached this run. Every check that would otherwise
     # read a loss as unexplained asks this first (ADR-0003).
@@ -92,12 +109,29 @@ def main(argv: list[str] | None = None) -> int:
     # tail, and would report freshness for records no consumer can see.
     merged, discarded = pipeline.apply_caps(merged)
 
+    # Generated against the capped Observed set, so a string we already publish as
+    # witnessed is never published a second time as a fabrication (ADR-0002).
+    try:
+        synthetic_records, withheld = synthetic.build(
+            manifest, (r.user_agent for records in merged.values() for r in records)
+        )
+    except synthetic.SyntheticError as exc:
+        # The generator produced a string its own family detection cannot classify.
+        # That is a bug in this repository, not a source outage, so it is reported
+        # the same way rather than left to print a traceback nobody reads.
+        _annotate("error", "synthetic/generate", str(exc))
+        print(f"\n{exc}\nNothing published.")
+        return 1
+
     checks = (
         pipeline.check_freshness(merged, manifest)
         + pipeline.check_regression(merged, pipeline.load_previous(), down=down)
         + pipeline.check_shrinkage(results, pipeline.load_history())
         + pipeline.check_coverage(merged)
         + pipeline.check_caps(merged)
+        + pipeline.check_separation(merged)
+        + pipeline.check_synthetic(synthetic_records, merged, withheld)
+        + pipeline.check_fidelity(synthetic_records, manifest)
     )
 
     generated_at = datetime.now(timezone.utc).isoformat()
@@ -131,6 +165,26 @@ def main(argv: list[str] | None = None) -> int:
         )
         measured = sum(1 for r in records if r.count is not None)
         print(f"  wrote {category:8} {len(records):4} records ({measured} measured)")
+
+    written = set()
+    for category, records in sorted(synthetic.by_category(synthetic_records).items()):
+        name = f"{category}.json"
+        pipeline.write_json(
+            f"{pipeline.SYNTHETIC_DIR}/{name}",
+            pipeline.build_synthetic_payload(category, records, manifest, generated_at),
+        )
+        written.add(name)
+        print(f"  wrote {category:8} {len(records):4} Synthetic records")
+
+    # A category that goes from published to withheld leaves its file behind, and a
+    # stale Synthetic file is worse than a missing one: it keeps presenting strings
+    # this build no longer stands behind. Scoped to `*.json` in this one directory,
+    # so a build cannot delete anything a person put there.
+    for stale in sorted(set(os.listdir(pipeline.SYNTHETIC_DIR)) - written):
+        if not stale.endswith(".json"):
+            continue
+        os.remove(os.path.join(pipeline.SYNTHETIC_DIR, stale))
+        print(f"  removed {stale:8} no longer generated")
 
     pipeline.append_history(
         {

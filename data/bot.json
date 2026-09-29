@@ -1,13 +1,14 @@
 {
-  "schema_version": 3,
-  "generated_at": "2026-09-29T11:24:57.490733+00:00",
+  "schema_version": 4,
+  "kind": "observed",
+  "generated_at": "2026-09-29T12:20:22.755026+00:00",
   "category": "bot",
   "sources": [
     {
       "name": "useragents.me",
       "status": "ok",
       "error": null,
-      "collected_at": "2026-09-29T11:24:54.222645+00:00",
+      "collected_at": "2026-09-29T12:20:19.421915+00:00",
       "records": 126,
       "by_category": {
         "bot": 20,
@@ -38,7 +39,7 @@
       "name": "crawler-user-agents",
       "status": "ok",
       "error": null,
-      "collected_at": "2026-09-29T11:24:55.113431+00:00",
+      "collected_at": "2026-09-29T12:20:20.069256+00:00",
       "records": 2120,
       "by_category": {
         "bot": 2120
@@ -52,6 +53,9 @@
     "manifest": {
       "versions": {
         "android": 155,
+        "edge_linux": 154,
+        "edge_macos": 154,
+        "edge_windows": 154,
         "firefox": 156,
         "firefox_esr": 140,
         "linux": 154,
@@ -84,6 +88,7 @@
   "user_agents": [
     {
       "user_agent": "python-requests/2.34.2",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -92,10 +97,12 @@
       "count_source": "useragents.me",
       "sources": [
         "useragents.me"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -105,10 +112,12 @@
       "sources": [
         "crawler-user-agents",
         "useragents.me"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "curl/8.22.0",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -117,10 +126,12 @@
       "count_source": "useragents.me",
       "sources": [
         "useragents.me"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "axios/1.20.0",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -129,10 +140,12 @@
       "count_source": "useragents.me",
       "sources": [
         "useragents.me"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "GuzzleHttp/7",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -141,10 +154,12 @@
       "count_source": "useragents.me",
       "sources": [
         "useragents.me"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; ClaudeBot/1.0; +claudebot@anthropic.com)",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -154,10 +169,12 @@
       "sources": [
         "crawler-user-agents",
         "useragents.me"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "Mozilla/5.0 (compatible; YiBot/1.0; +https://01.ai/)",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -166,10 +183,12 @@
       "count_source": "useragents.me",
       "sources": [
         "useragents.me"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; PerplexityBot/1.0; +https://perplexity.ai/perplexitybot)",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -179,10 +198,12 @@
       "sources": [
         "crawler-user-agents",
         "useragents.me"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "Mozilla/5.0 (compatible; Qwenbot/1.0; +https://qwen.alibaba.com/)",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -191,10 +212,12 @@
       "count_source": "useragents.me",
       "sources": [
         "useragents.me"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15 (Applebot/0.1)",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -203,10 +226,12 @@
       "count_source": "useragents.me",
       "sources": [
         "useragents.me"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "Mozilla/5.0 (compatible; DeepSeekBot/1.0; +https://www.deepseek.com/)",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -215,10 +240,12 @@
       "count_source": "useragents.me",
       "sources": [
         "useragents.me"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "Mozilla/5.0 (compatible; KimiBot/1.0; +https://kimi.ai/)",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -227,10 +254,12 @@
       "count_source": "useragents.me",
       "sources": [
         "useragents.me"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko); compatible; ChatGPT-User/1.0; +https://openai.com/bot",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -240,10 +269,12 @@
       "sources": [
         "crawler-user-agents",
         "useragents.me"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "Mozilla/5.0 (compatible; PanguBot/1.0; +https://www.huaweicloud.com/)",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -252,10 +283,12 @@
       "count_source": "useragents.me",
       "sources": [
         "useragents.me"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "Mozilla/5.0 (compatible; MistralAI-User/1.0; +https://mistral.ai/)",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -264,10 +297,12 @@
       "count_source": "useragents.me",
       "sources": [
         "useragents.me"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Claude-SearchBot/1.0; +claudebot@anthropic.com)",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -276,10 +311,12 @@
       "count_source": "useragents.me",
       "sources": [
         "useragents.me"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Perplexity-User/1.0; +https://perplexity.ai/perplexitybot)",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -288,10 +325,12 @@
       "count_source": "useragents.me",
       "sources": [
         "useragents.me"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36; compatible; OAI-SearchBot/1.4; +https://openai.com/searchbot",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -300,10 +339,12 @@
       "count_source": "useragents.me",
       "sources": [
         "useragents.me"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "DuckAssistBot/1.1 (https://duckduckgo.com/duckassistbot)",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -312,10 +353,12 @@
       "count_source": "useragents.me",
       "sources": [
         "useragents.me"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Claude-User/1.0; +claudebot@anthropic.com)",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -324,10 +367,12 @@
       "count_source": "useragents.me",
       "sources": [
         "useragents.me"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "Mozilla/5.0 (Linux; Android 16; Pixel 10 Pro XL Build/CP1A.260305.018; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/146.0.7680.174 Mobile Safari/537.36 MetaIAB Facebook",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -336,10 +381,12 @@
       "count_source": null,
       "sources": [
         "crawler-user-agents"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "Mozilla/5.0 (Linux; Android 15; CPH2557 Build/AP3A.240617.008; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/142.0.7444.142 Mobile Safari/537.36 Instagram 406.0.0.58.159 Android (35/15; 480dpi; 1080x2400; OPPO; CPH2557; OP573DL1; mt6833; en_MY; 822918295; IABMV/1) NV/1",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -348,10 +395,12 @@
       "count_source": null,
       "sources": [
         "crawler-user-agents"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Code/1.115.0 Chrome/142.0.7444.265 Electron/39.8.5 Safari/537.36",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -360,10 +409,12 @@
       "count_source": null,
       "sources": [
         "crawler-user-agents"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Trae/1.107.1 Chrome/142.0.7444.235 Electron/39.2.7 Safari/537.36",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -372,10 +423,12 @@
       "count_source": null,
       "sources": [
         "crawler-user-agents"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko; GeedoShopProductFinder) Chrome/142.0.0.0 Safari/537.36",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -384,10 +437,12 @@
       "count_source": null,
       "sources": [
         "crawler-user-agents"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko; compatible; GoogleAgent-Mariner) Chrome/142.0.7444.162 Safari/537.36",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -396,10 +451,12 @@
       "count_source": null,
       "sources": [
         "crawler-user-agents"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 newsai/1.0 Safari/537.36",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -408,10 +465,12 @@
       "count_source": null,
       "sources": [
         "crawler-user-agents"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 CybaaBot",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -420,10 +479,12 @@
       "count_source": null,
       "sources": [
         "crawler-user-agents"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.7339.16 Safari/537.36 (compatible; ActiveComply/2.0; +https://app.activecomply.com/bot)",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -432,10 +493,12 @@
       "count_source": null,
       "sources": [
         "crawler-user-agents"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "Mozilla/5.0 AppleWebKit/537.36 Chrome/139.0.7258.127 Safari/537.36 Google-Ads-Conversions",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -444,10 +507,12 @@
       "count_source": null,
       "sources": [
         "crawler-user-agents"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Sindup/1.0.0",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -456,10 +521,12 @@
       "count_source": null,
       "sources": [
         "crawler-user-agents"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.7204.168 Safari/537.36 DatadogSynthetics",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -468,10 +535,12 @@
       "count_source": null,
       "sources": [
         "crawler-user-agents"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36; Devin/1.0; +https://devin.ai",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -480,10 +549,12 @@
       "count_source": null,
       "sources": [
         "crawler-user-agents"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7; TSMbot) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -492,10 +563,12 @@
       "count_source": null,
       "sources": [
         "crawler-user-agents"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Gemini-Deep-Research; +https://gemini.google/overview/deep-research/) Chrome/135.0.0.0 Safari/537.36",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -504,10 +577,12 @@
       "count_source": null,
       "sources": [
         "crawler-user-agents"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.6998.35 Safari/537.36 (Checkly, https://www.checklyhq.com)",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -516,10 +591,12 @@
       "count_source": null,
       "sources": [
         "crawler-user-agents"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36 Scope3/2.0 (scope3.com)",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -528,10 +605,12 @@
       "count_source": null,
       "sources": [
         "crawler-user-agents"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36; Manus-User/1.0",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -540,10 +619,12 @@
       "count_source": null,
       "sources": [
         "crawler-user-agents"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "Mozilla/5.0 (Linux; Android 15; GEC77) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36 Nitro-Optimizer-Agent",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -552,10 +633,12 @@
       "count_source": null,
       "sources": [
         "crawler-user-agents"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 CookieHubScan/3.0",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -564,10 +647,12 @@
       "count_source": null,
       "sources": [
         "crawler-user-agents"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 CookieHubVerify/3.0",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -576,10 +661,12 @@
       "count_source": null,
       "sources": [
         "crawler-user-agents"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko; CookieYesbot/1.0; +http://www.cookieyes.com/documentation/cookieyesbot) Chrome/131.0.6778.0 Safari/537.36",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -588,10 +675,12 @@
       "count_source": null,
       "sources": [
         "crawler-user-agents"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "Mozilla/5.0 (Windows NT 10.0; cludo.com bot) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -600,10 +689,12 @@
       "count_source": null,
       "sources": [
         "crawler-user-agents"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Aranet-SearchBot/1.0; +https://aranet.ai/bot) Chrome/131.0.0.0 Safari/537.36",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -612,10 +703,12 @@
       "count_source": null,
       "sources": [
         "crawler-user-agents"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; SleepBot/1.0; +http://sleepbot.com/) Chrome/131.0.0.0 Safari/537.36",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -624,10 +717,12 @@
       "count_source": null,
       "sources": [
         "crawler-user-agents"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "StatsDroneBot (https://statsdrone.com/statsdrone-bot-documentation/) Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -636,10 +731,12 @@
       "count_source": null,
       "sources": [
         "crawler-user-agents"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "Mozilla/5.0 (compatible; bne.es_bot; https://www.bne.es/es/colecciones/archivo-web-espanola/aviso-webmasters) Firefox/129.0.1",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -648,10 +745,12 @@
       "count_source": null,
       "sources": [
         "crawler-user-agents"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "Mozilla/5.0 (compatible;Impact.com Agent) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -660,10 +759,12 @@
       "count_source": null,
       "sources": [
         "crawler-user-agents"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36 (compatible; XY-Archive-Compliance-Archiver; +https://archive.xyplanningnetwork.com/)",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -672,10 +773,12 @@
       "count_source": null,
       "sources": [
         "crawler-user-agents"
-      ]
+      ],
+      "synthesized_from": null
     },
     {
       "user_agent": "Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.6439.0 Mobile Safari/537.36 +https://sitebulb.com",
+      "kind": "observed",
       "os": null,
       "browser": null,
       "device": null,
@@ -684,7 +787,8 @@
       "count_source": null,
       "sources": [
         "crawler-user-agents"
-      ]
+      ],
+      "synthesized_from": null
     }
   ]
 }

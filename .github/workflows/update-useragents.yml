@@ -13,6 +13,9 @@ on:
       - 'scraper.py'
       - 'uadata/**'
       - 'tests/**'
+      - 'requirements.txt'
+      - 'package.json'
+      - 'package-lock.json'
       - '.github/workflows/update-useragents.yml'
 
 permissions:
@@ -32,10 +35,18 @@ jobs:
       with:
         python-version: '3.12'
 
+    # ua-parser-js is the second fidelity oracle. A build that cannot run it fails,
+    # so the environment that runs the build is part of what CI has to set up.
+    - name: Set up Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+        npm ci
 
     - name: Run tests
       run: python -m unittest discover -s tests -t . -q
@@ -51,7 +62,7 @@ jobs:
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Actions"
-        git add -A data/ common/ state/ || true
+        git add -A data/ common/ synthetic/ state/ || true
 
         if git diff --cached --quiet; then
           echo "No data change to commit."

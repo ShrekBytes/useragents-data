@@ -1,0 +1,9 @@
+{
+  "name": "useragents-data",
+  "private": true,
+  "description": "The fidelity oracle for Synthetic User Agents. Nothing is built here; the Python package in uadata/ shells out to this module to ask a second, independent parser what a generated string says.",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "ua-parser-js": "^2.0.0"
+  }
+}

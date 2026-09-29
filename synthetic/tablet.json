@@ -1,0 +1,39 @@
+{
+  "schema_version": 4,
+  "kind": "synthetic",
+  "generated_at": "2026-09-29T12:20:22.755026+00:00",
+  "category": "tablet",
+  "generated_from": {
+    "manifest": {
+      "versions": {
+        "android": 155,
+        "edge_linux": 154,
+        "edge_macos": 154,
+        "edge_windows": 154,
+        "firefox": 156,
+        "firefox_esr": 140,
+        "linux": 154,
+        "mac": 155,
+        "windows": 155
+      },
+      "errors": []
+    },
+    "templates": [
+      "chrome-android-tablet"
+    ]
+  },
+  "user_agents": [
+    {
+      "user_agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+      "kind": "synthetic",
+      "os": "Android",
+      "browser": "Chrome 155",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [],
+      "synthesized_from": "chrome-android-tablet"
+    }
+  ]
+}

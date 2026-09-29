@@ -1,0 +1,78 @@
+{
+  "schema_version": 4,
+  "kind": "synthetic",
+  "generated_at": "2026-09-29T12:20:22.755026+00:00",
+  "category": "desktop",
+  "generated_from": {
+    "manifest": {
+      "versions": {
+        "android": 155,
+        "edge_linux": 154,
+        "edge_macos": 154,
+        "edge_windows": 154,
+        "firefox": 156,
+        "firefox_esr": 140,
+        "linux": 154,
+        "mac": 155,
+        "windows": 155
+      },
+      "errors": []
+    },
+    "templates": [
+      "chrome-mac",
+      "edge-windows",
+      "edge-linux",
+      "firefox-firefox_esr-mac"
+    ]
+  },
+  "user_agents": [
+    {
+      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+      "kind": "synthetic",
+      "os": "macOS",
+      "browser": "Chrome 155",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [],
+      "synthesized_from": "chrome-mac"
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36 Edg/154.0.0.0",
+      "kind": "synthetic",
+      "os": "Windows 10",
+      "browser": "Edge 154",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [],
+      "synthesized_from": "edge-windows"
+    },
+    {
+      "user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36 Edg/154.0.0.0",
+      "kind": "synthetic",
+      "os": "Linux",
+      "browser": "Edge 154",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [],
+      "synthesized_from": "edge-linux"
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:140.0) Gecko/20100101 Firefox/140.0",
+      "kind": "synthetic",
+      "os": "macOS",
+      "browser": "Firefox 140",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [],
+      "synthesized_from": "firefox-firefox_esr-mac"
+    }
+  ]
+}

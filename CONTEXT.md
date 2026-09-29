@@ -27,7 +27,8 @@ _Avoid_: generated UA, fake UA, made-up UA
 The record of where an Observed UA came from and when it was collected. Which
 source confirmed each string is held per record; when the collection happened is
 held once per source per fetch, not repeated across every record. Never inferred,
-never guessed, always present on Observed UAs.
+never guessed, always present on Observed UAs. A Synthetic UA has none: no source
+witnessed it, and the manifest entry it was built from is its whole origin.
 _Avoid_: source, origin (too vague — pick one)
 
 **Measurement Attribution**:
@@ -46,5 +47,12 @@ _Avoid_: platform, form factor, device type
 
 - An Observed UA and a Synthetic UA are never mixed in one file. A consumer who
   assumes they are reading real traffic data must never receive a fabricated string.
+- Every record declares which of the two it is, and is never inferred from the file
+  it arrived in. A record on its own must be enough to know what claim to make.
+- A Synthetic UA carries no frequency. No source ever saw the string, so no count
+  describes anything.
+- A string is either witnessed or built, never both. A string already held as
+  Observed is published as Observed, and is not also published as Synthetic.
 - Synthetic UAs are held to a fidelity bar that keeps them indistinguishable from
   Observed UAs to a real User Agent parser. The bar is defined by test, not by eye.
+  Two independent parsers, or the check is one parser wearing two names.

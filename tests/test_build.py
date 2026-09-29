@@ -15,7 +15,7 @@ import unittest
 from unittest import mock
 
 import scraper
-from uadata import pipeline
+from uadata import pipeline, synthetic
 from uadata.manifest import Manifest
 from uadata.model import CATEGORIES, Record, SourceError, SourceResult
 
@@ -271,10 +271,12 @@ class BuildTests(unittest.TestCase):
     def test_fresh_data_is_published_with_provenance(self):
         self.assertEqual(self.build([FakeSource(PRIMARY, {"desktop": desktop(155, counts=True)})]), 0)
         payload = self.published()
-        self.assertEqual(payload["schema_version"], 3)
+        self.assertEqual(payload["schema_version"], 4)
+        self.assertEqual(payload["kind"], "observed")
         self.assertEqual(payload["sources"][0]["name"], PRIMARY)
         self.assertEqual(payload["user_agents"][0]["sources"], [PRIMARY])
         self.assertEqual(payload["user_agents"][0]["count_source"], PRIMARY)
+        self.assertEqual(payload["user_agents"][0]["kind"], "observed")
 
     def test_two_sources_confirming_one_string_name_both(self):
         # Provenance is the record of who saw it, and no source is more real than
@@ -315,6 +317,140 @@ class BuildTests(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertFalse(os.path.exists("data"))
         self.assertFalse(os.path.exists("common"))
+        self.assertFalse(os.path.exists(pipeline.SYNTHETIC_DIR))
+
+    # --- the two datasets, end to end --------------------------------------
+
+    def synthetic_published(self, category="desktop"):
+        with open(f"{pipeline.SYNTHETIC_DIR}/{category}.json", encoding="utf-8") as handle:
+            return json.load(handle)
+
+    def test_synthetic_records_are_published_to_their_own_directory(self):
+        # The whole guarantee, through a real build: the Observed dataset lands in
+        # `data/` and `common/`, the Synthetic one in `synthetic/`, and nothing is
+        # written to the other's directory.
+        self.assertEqual(self.build([FakeSource("s", {"desktop": desktop(155)})]), 0)
+        self.assertTrue(os.path.isdir(pipeline.SYNTHETIC_DIR))
+        observed = {r["user_agent"] for r in self.published()["user_agents"]}
+        for name in os.listdir(pipeline.SYNTHETIC_DIR):
+            with self.subTest(file=name):
+                payload = self.synthetic_published(name[: -len(".json")])
+                self.assertEqual(payload["kind"], "synthetic")
+                for row in payload["user_agents"]:
+                    self.assertEqual(row["kind"], "synthetic")
+                    self.assertNotIn(row["user_agent"], observed)
+
+    def test_every_published_file_declares_its_own_kind(self):
+        # A consumer that opens one file learns what it is holding without having
+        # to know which directory it came from.
+        self.assertEqual(self.build([FakeSource("s", {"desktop": desktop(155)})]), 0)
+        self.assertEqual(self.published()["kind"], "observed")
+        for category in sorted(os.listdir(pipeline.SYNTHETIC_DIR)):
+            with self.subTest(file=category):
+                self.assertEqual(self.synthetic_published(category[: -len(".json")])["kind"], "synthetic")
+
+    def test_no_synthetic_record_can_reach_an_observed_file(self):
+        # Even if a source handed one over. A record carries its own kind, and both
+        # the merge and the publisher refuse a record whose kind is not the one
+        # being written, so there is no route through the build by which a
+        # fabricated string is filed as witnessed.
+        smuggled = Record(
+            user_agent=ua(155),
+            kind="synthetic",
+            synthesized_from="chrome-windows",
+            sources=(PRIMARY,),
+        )
+        code = self.build(
+            [
+                FakeSource(PRIMARY, {"desktop": desktop(155, counts=True)}),
+                FakeSource("winfuture23", {"desktop": [smuggled]}),
+            ]
+        )
+        self.assertEqual(code, 1, "a Synthetic record was published as Observed")
+        self.assertFalse(os.path.exists("data"))
+
+    def test_synthetic_strings_are_withheld_when_the_observed_set_already_has_them(self):
+        # The collision rule, end to end. The fake observed string is the one the
+        # generator would produce for `windows: 155`, so the template is withheld
+        # rather than published a second time under the other kind's label.
+        clash = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36"
+        self.assertEqual(
+            self.build(
+                [
+                    FakeSource(
+                        PRIMARY,
+                        {"desktop": [Record(clash, count=1, count_source=PRIMARY, sources=(PRIMARY,))]},
+                    )
+                ]
+            ),
+            0,
+        )
+        published = {r["user_agent"] for r in self.synthetic_published()["user_agents"]}
+        self.assertNotIn(clash, published)
+
+    def test_a_build_with_no_manifest_publishes_no_synthetic_dataset(self):
+        # Every template needs a version we can vouch for, so a total vendor outage
+        # leaves nothing to generate. That is a failure, not a silently smaller file:
+        # an empty Synthetic dataset would read as "there are none".
+        code = self.build(
+            [FakeSource("s", {"desktop": desktop(155)})], manifest=Manifest()
+        )
+        self.assertEqual(code, 1)
+        self.assertFalse(os.path.exists(pipeline.SYNTHETIC_DIR))
+
+    def test_a_stale_synthetic_file_is_removed_rather_than_left_behind(self):
+        # Withholding is steady state, so a category can go from published to
+        # withheld as the Observed corpus catches up. A stale Synthetic file is
+        # worse than a missing one: it keeps presenting strings this build no
+        # longer stands behind, and the corpus-disjointness test would then fail
+        # with no build able to fix it.
+        self.assertEqual(self.build([FakeSource("s", {"desktop": desktop(155)})]), 0)
+        self.assertTrue(os.listdir(pipeline.SYNTHETIC_DIR))
+
+        # Manifest that supports nothing, so no Synthetic category is written at
+        # all. The Observed side still builds, so this isolates the pruning.
+        self.assertEqual(
+            self.build([FakeSource("s", {"desktop": desktop(155)})], manifest=CURRENT), 0
+        )
+        stale = os.path.join(pipeline.SYNTHETIC_DIR, "stale-category.json")
+        with open(stale, "w", encoding="utf-8") as handle:
+            json.dump({"kind": "synthetic", "user_agents": []}, handle)
+        self.assertEqual(self.build([FakeSource("s", {"desktop": desktop(155)})]), 0)
+        self.assertFalse(os.path.exists(stale), "a file this build did not write survived")
+
+    def test_pruning_never_touches_a_non_json_file(self):
+        # The build removes what it no longer generates, and that must stay scoped
+        # to its own output rather than becoming a wildcard over the directory.
+        self.assertEqual(self.build([FakeSource("s", {"desktop": desktop(155)})]), 0)
+        keep = os.path.join(pipeline.SYNTHETIC_DIR, "NOTES.md")
+        with open(keep, "w", encoding="utf-8") as handle:
+            handle.write("not generated\n")
+        self.assertEqual(self.build([FakeSource("s", {"desktop": desktop(155)})]), 0)
+        self.assertTrue(os.path.exists(keep))
+
+    def test_a_generator_bug_is_reported_rather_than_raised(self):
+        # `synthetic.build` refusing a string is a bug in this repository, not a
+        # source outage. It is reported the way every other failure here is, so the
+        # operator reads a sentence instead of a traceback.
+        with mock.patch.object(
+            synthetic, "render", side_effect=synthetic.SyntheticError("chrome-windows: broken")
+        ):
+            code = self.build([FakeSource("s", {"desktop": desktop(155)})])
+        self.assertEqual(code, 1)
+        self.assertFalse(os.path.exists("data"))
+        self.assertFalse(os.path.exists(pipeline.SYNTHETIC_DIR))
+
+    def test_a_fidelity_failure_publishes_nothing_at_all(self):
+        # The three parts land as one unit (ADR-0005): a string nobody can verify
+        # is not published as Synthetic, and the Observed dataset is not published
+        # on the back of a green tick the Synthetic checks never gave.
+        with mock.patch.object(
+            pipeline, "check_fidelity", return_value=[pipeline.Check("synthetic/fidelity/uap-core", False, "error", "test")]
+        ):
+            code = self.build([FakeSource("s", {"desktop": desktop(155)})])
+        self.assertEqual(code, 1)
+        self.assertFalse(os.path.exists("data"))
+        self.assertFalse(os.path.exists(pipeline.SYNTHETIC_DIR))
 
     def test_freshness_reports_both_scopes(self):
         # bot.json holds Chrome 131 while the collection holds 154. Publishing only

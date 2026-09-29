@@ -24,21 +24,33 @@ That failure is the reason for the current design:
 - Counts are **never combined**. The published order is defined by one designated
   source's measurements, and a frequency always names the source that measured it
   ([ADR-0009](docs/adr/0009-order-by-one-designated-source.md)).
+- **Observed and Synthetic are never mixed.** Every record declares which it is,
+  and the two live in separate directories. A consumer who picks a string to put in
+  a request header is making an implicit trust claim, and a fabricated string
+  silently breaks it
+  ([ADR-0002](docs/adr/0002-observed-and-synthetic-never-mixed.md)).
+- **Synthetic UAs are held to a test, not to a reviewer's eye.** Every generated
+  string must be identified correctly by two independent real User Agent parsers
+  or the build fails
+  ([ADR-0011](docs/adr/0011-synthetic-dataset-shape-and-fidelity.md)).
 
 ## Project structure
 
 ```
 useragents-data/
-├── data/                    # Canonical enriched records (schema v2)
+├── data/                    # Observed records (schema v4)
 │   ├── desktop.json
 │   ├── mobile.json
 │   ├── tablet.json
 │   └── bot.json
-├── common/                  # Legacy plain-string views, regenerated each build
+├── common/                  # Observed plain-string views, regenerated each build
 │   ├── desktop.json
 │   ├── mobile.json
 │   ├── tablet.json
 │   └── bot.json
+├── synthetic/               # Synthetic UAs. Never Observed, never mixed with them
+│   ├── desktop.json         # (a category is published only while the manifest
+│   └── tablet.json          #  supports it and its output is not already Observed)
 ├── state/history.json       # Per-source run history, for shrinkage baselines
 ├── scraper.py               # Build entry point
 ├── uadata/                  # Ingestion package
@@ -49,13 +61,31 @@ useragents-data/
 `common/` is **generated from** `data/` on every run. It is not maintained
 separately, so the two cannot drift apart.
 
+### `common/<category>.json` — legacy shape, unchanged keys
+
+Observed only. This file's records are bare strings and its keys have not changed since v1, so
+there is no `kind` on them; a test asserts that no Synthetic string can appear here, which it
+cannot: a Synthetic record carries no count, and this file publishes only measured strings.
+
+`data/` and `common/` hold **Observed** UAs: strings a source recorded from real
+traffic. `synthetic/` holds **Synthetic** UAs: strings we constructed from
+genuinely current product versions. They never share a file, and every record
+in `data/` and `synthetic/` says which it is ([ADR-0002](docs/adr/0002-observed-and-synthetic-never-mixed.md),
+[ADR-0011](docs/adr/0011-synthetic-dataset-shape-and-fidelity.md)).
+
+Which categories appear in `synthetic/` changes from run to run. A category is
+published only while the manifest supports a template for it *and* that
+template's output is not already in the Observed corpus — and a category that
+stops qualifying has its file deleted rather than left stale.
+
 ## Data format
 
-### `data/<category>.json` — canonical, schema v3
+### `data/<category>.json` — Observed, canonical, schema v4
 
 ```json
 {
-  "schema_version": 3,
+  "schema_version": 4,
+  "kind": "observed",
   "generated_at": "2026-09-29T09:47:35.722530+00:00",
   "category": "desktop",
   "sources": [
@@ -77,22 +107,31 @@ separately, so the two cannot drift apart.
   "user_agents": [
     {
       "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36",
+      "kind": "observed",
       "os": "Windows 10",
       "browser": "Chrome 153.0.0.0",
       "device": null,
       "count": 1029,
       "percentage": 2.59,
       "count_source": "useragents.me",
-      "sources": ["useragents.me", "winfuture23"]
+      "sources": ["useragents.me", "winfuture23"],
+      "synthesized_from": null
     }
   ]
 }
 ```
 
+**`kind` is on every record and is never inferred.** `observed` or `synthetic`.
+A consumer holding one record — copied into a spreadsheet, passed between
+services — can still tell what claim to make about it. Schema v4 added it; on a
+v3 file the field is absent, so check `schema_version` rather than reading a
+missing `kind` as `observed`.
+
 **`count` and `percentage` are only populated for strings a source actually
 measured.** A `null` count does not mean zero traffic — it means nobody measured.
 Those records are ordered after the measured ones so that anything with a real
-frequency claim leads the file.
+frequency claim leads the file. On a Synthetic record they are always `null`,
+because no source ever saw the string.
 
 **`count_source` names the source that measured them.** It is not redundant with
 `sources`: a source can confirm that a string exists without saying how often it was
@@ -117,6 +156,67 @@ that claim for — or with another sample's numbers — would defeat it. On a ru
 that source is down it publishes an **empty list**: no source measured anything, so
 there is no "most common" to publish. `data/` still carries the current strings.
 
+### `synthetic/<category>.json` — Synthetic, schema v4
+
+```json
+{
+  "schema_version": 4,
+  "kind": "synthetic",
+  "generated_at": "2026-09-29T12:09:54.768924+00:00",
+  "category": "desktop",
+  "generated_from": {
+    "manifest": {"versions": {"windows": 155, "firefox": 156, "edge_windows": 154}, "errors": []},
+    "templates": ["chrome-mac", "edge-windows", "edge-linux"]
+  },
+  "user_agents": [
+    {
+      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+      "kind": "synthetic",
+      "os": "macOS",
+      "browser": "Chrome 155",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [],
+      "synthesized_from": "chrome-mac"
+    }
+  ]
+}
+```
+
+**These strings were constructed, not witnessed.** They are built from the
+versions vendors currently publish, and every one of them is verified by two
+independent real User Agent parsers before publication
+([ADR-0011](docs/adr/0011-synthetic-dataset-shape-and-fidelity.md)). They carry
+no frequency and no Provenance, because there is nothing to attribute: no source
+saw them. `generated_from.manifest` is the whole of their provenance, and
+`synthesized_from` names the template that built each one.
+
+There is no `sources` or `freshness` block. An empty `sources` list beside a list
+of records would read as "sources ran and found nothing", which is the opposite of
+what happened.
+
+**Observed and Synthetic never share a file.** If a template's output is already
+in the Observed corpus it is withheld rather than published twice — a string
+cannot have been both witnessed and built. That means the two datasets overlap
+less than you might expect, and the `synthetic/collision` check names the
+withheld templates on every run. Where they *do* overlap in subject, the Observed
+record is the more useful answer: it carries real provenance and a real
+frequency, so that is where the string is published.
+
+There is no `synthetic/bot.json`. A fabricated crawler string would name a bot
+that does not exist, under someone else's product.
+
+```bash
+# Synthetic UAs, and the manifest they were built from.
+jq -r '.user_agents[].user_agent' synthetic/desktop.json
+jq '.generated_from.manifest.versions' synthetic/desktop.json
+
+# Confirm the two datasets really are disjoint.
+jq -r '.user_agents[].user_agent' data/*.json synthetic/*.json | sort | uniq -d
+```
+
 ## Migrating from the old layout
 
 | Before | Now |
@@ -127,9 +227,15 @@ there is no "most common" to publish. `data/` still carries the current strings.
 | — | `data/*.json` added, with parsed OS/browser/count/provenance |
 | `scraped_from: "https://useragents.me"` (string) | `scraped_from: ["useragents.me"]` (array) |
 | `data/*.json` `schema_version: 2` | `schema_version: 3`, adding `count_source` to every record |
+| `data/*.json` `schema_version: 3` | `schema_version: 4`, adding `kind` and `synthesized_from` |
+| — | `synthetic/*.json` added: constructed UAs, kept apart ([ADR-0011](docs/adr/0011-synthetic-dataset-shape-and-fidelity.md)) |
 
 The `scraped_from` type change is the only breaking one. `jq -r '.user_agents[0]'`
-and equivalent code in Python, Node or `curl` is unaffected.
+and equivalent code in Python, Node or `curl` is unaffected. Schema v4 only
+*adds* fields to `data/*.json` and `synthetic/*.json`, so a reader that ignores
+them keeps working; a reader that wants to switch on `kind` should check
+`schema_version` first, since a v3 file has the field absent rather than set to
+`observed`. `common/*.json` is unchanged.
 
 `scraped_from` now names only the sources whose strings are actually in the file,
 rather than every source that ran. On a healthy build the two are the same thing.
@@ -206,11 +312,15 @@ survive under CC0
 
 ## How staleness is prevented
 
-Four checks run on every build. Any failure aborts the build and leaves the
+Nine checks run on every build. Any failure aborts the build and leaves the
 published data untouched.
 
 | Check | Guards against |
 | --- | --- |
+| `separation/<category>` | A published file holding both Observed and Synthetic UAs, or records of the wrong kind for the file ([ADR-0002](docs/adr/0002-observed-and-synthetic-never-mixed.md)). |
+| `synthetic/present` | A build that would publish an empty Synthetic dataset, which would read as "there are none". |
+| `synthetic/collision` | A string in both datasets. A string cannot have been both witnessed and built. Names the templates withheld because we already observe their output. |
+| `synthetic/fidelity/uap-core`, `synthetic/fidelity/ua-parser` | A generated string that a real User Agent parser does not identify as intended ([ADR-0011](docs/adr/0011-synthetic-dataset-shape-and-fidelity.md)). One check per parser, so a failure says which objected. |
 | `freshness/<browser>` | Data that parses, builds and publishes while being months old. Fails if the dataset's newest version is more than one major behind what vendors report as shipping. Asserted for Chrome, Edge and Firefox — every family whose vendor publishes a current version as a version ([ADR-0010](docs/adr/0010-freshness-coverage-and-tolerance.md)). Safari, Opera, Samsung Internet and the iOS forks have no such feed and are **not** asserted; the regression check is all that covers them. |
 | `regression/<category>/<browser>` | Losing a version we already published, or a browser family dropping out of a file entirely. Checked against **every** family, not only those with a vendor feed. Unexplained loss is never published. |
 | `coverage/<category>` | A Device Category coming out empty, and reports how many sources confirmed each one. This is the check bot strings need: they carry no browser family, so the regression check cannot see a whole category of crawlers disappear. |
@@ -285,13 +395,36 @@ git clone https://github.com/ShrekBytes/useragents-data.git
 cd useragents-data
 
 pip install -r requirements.txt
+npm ci
 
-python -m unittest discover -s tests -t .   # 120 tests, no network
+python -m unittest discover -s tests -t .   # 162 tests, no network
 python scraper.py --check                   # run every check, write nothing
 python scraper.py                           # build and publish locally
 ```
 
-Requires Python 3.10+. The only dependency is `requests`.
+Requires Python 3.10+ and **Node**. Both fidelity oracles are needed to publish,
+not just to develop: a parser that cannot be run fails the build rather than
+skipping, because the promise the Synthetic dataset makes is that its strings were
+verified
+([ADR-0011](docs/adr/0011-synthetic-dataset-shape-and-fidelity.md)). `ua-parser`
+comes from `requirements.txt`; `ua-parser-js` from `package.json`. They are
+deliberately independent implementations — if you only want to fetch Observed
+data, nothing in `uadata/sources.py` needs either.
+
+### How Synthetic UAs are generated
+
+Versions come from the same manifest the staleness assertion reads, so the
+generator and the oracle cannot disagree about what "current" means
+([ADR-0005](docs/adr/0005-single-version-manifest.md)). Platform tokens are
+frozen literals, because Chromium's User-Agent reduction froze them —
+`Linux; Android 10; K` is what a current Chrome on Android sends, and it is *not*
+a claim about any particular device.
+
+14 templates cover Chrome, Edge and Firefox on Windows, macOS and Linux, plus
+Chrome on Android as phone and tablet, and Firefox release and ESR. Not
+generated, and why, is written down in the ADR: Firefox on Android, Safari, the
+iOS forks, Opera, Samsung Internet and bots all need a version no vendor feed we
+can read publishes.
 
 ### Adding a source
 
