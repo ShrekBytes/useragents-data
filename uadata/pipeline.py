@@ -2,11 +2,12 @@
 
 The checks are the point of this rewrite. The previous scraper produced a worse
 dataset than the day before and nothing objected, because nothing compared the
-output against any expectation. Three checks stand in for that:
+output against any expectation. Four checks stand in for that:
 
   freshness  is the newest thing we hold as new as what vendors say is shipping
   regression did anything we published last week disappear this week
   shrinkage  did a source that is still up quietly start returning less
+  coverage   is every Device Category still published, and by whom
 
 Everything else here is plumbing.
 """
@@ -27,6 +28,14 @@ from .model import CATEGORIES, CATEGORY_LABELS, Record, SourceResult, merge_reco
 DATA_DIR = "data"
 LEGACY_DIR = "common"
 STATE_PATH = os.path.join("state", "history.json")
+
+# The one source whose measured frequency defines the published order (ADR-0009).
+#
+# Counts from different sources are not comparable: 1000 hits in one site's sample
+# and 5 in another's say nothing about which is more common. So a record is ranked
+# only if this source measured it, and a record another source measured joins the
+# unmeasured block rather than being compared against ours.
+ORDERING_SOURCE = "useragents.me"
 
 # One major of slack absorbs a release landing between the source's last publish
 # and our Saturday run. Two majors behind is a freeze, and is a hard failure.
@@ -50,11 +59,14 @@ CATEGORY_CAPS = {"desktop": 200, "mobile": 200, "tablet": 50, "bot": 50}
 TOTAL_CAP = sum(CATEGORY_CAPS.values())
 assert TOTAL_CAP == 500, "the budget is 500 in total; adjust ADR-0007 if this changes"
 
-# Slots within a category's cap that measured records may not consume. Measured
+# Slots within a category's cap that ranked records may not consume. Measured
 # frequency is dominated by old and degenerate strings — the most common desktop UA
 # has no browser token at all — so trimming purely by frequency would evict every
 # current browser and rebuild the staleness this pipeline exists to prevent.
-RESERVED_UNMEASURED = 20
+#
+# "Unranked" is not the same as "unmeasured": a record the ordering source did not
+# measure is unranked even when another source published a count for it (ADR-0009).
+RESERVED_UNRANKED = 20
 
 # Freshness is checked against these families only, because it needs a vendor to
 # compare with. Regression is checked against every family in
@@ -80,8 +92,8 @@ def merge_sources(results: list[SourceResult]) -> dict[str, list[Record]]:
     """Union every source's records per category, keyed by the exact string.
 
     Counts are never summed or averaged: `count` from one source has no relationship
-    to `count` from another. The first measured value wins and provenance records
-    who confirmed the string.
+    to `count` from another. One whole measurement wins and provenance records who
+    confirmed the string.
     """
     merged: dict[str, dict[str, Record]] = {c: {} for c in CATEGORIES}
     for result in results:
@@ -90,33 +102,45 @@ def merge_sources(results: list[SourceResult]) -> dict[str, list[Record]]:
             for record in records:
                 existing = bucket.get(record.user_agent)
                 bucket[record.user_agent] = (
-                    record if existing is None else merge_records(existing, record)
+                    record
+                    if existing is None
+                    else merge_records(existing, record, prefer=ORDERING_SOURCE)
                 )
     return {c: order_records(list(v.values())) for c, v in merged.items() if v}
 
 
-def order_records(records: list[Record]) -> list[Record]:
-    """Measured records first by frequency, then everything else, newest first.
+def split_ranked(records: list[Record]) -> tuple[list[Record], list[Record]]:
+    """The two blocks every published category is made of, in published order.
 
-    The measured block leads because that is the ordering consumers of the legacy
-    files have always seen. Within the unmeasured block, newest browser version
-    first, so the current strings are not buried under ancient ones.
+    One predicate, two call sites. `order_records` sorts them apart and
+    `apply_caps` reserves slots for the second; if the two ever disagreed about
+    which block a record is in, the cap would protect records nothing ranks and
+    let ranked records spend the space that was meant for the current ones.
     """
-    measured = sorted(
-        (r for r in records if r.count is not None),
-        key=lambda r: (-(r.count or 0), r.user_agent),
+    ranked = [r for r in records if r.measured_by(ORDERING_SOURCE)]
+    return ranked, [r for r in records if not r.measured_by(ORDERING_SOURCE)]
+
+
+def order_records(records: list[Record]) -> list[Record]:
+    """Ranked by the ordering source's frequency, then everything else, newest first.
+
+    The ranked block leads because that is the ordering consumers of the legacy
+    files have always seen. It is deliberately *only* the ordering source's
+    measurements: a string another source measured 5,000 times does not outrank a
+    string ours measured 10 times, because that comparison would be between two
+    different samples rather than a ranking. Within the second block, newest
+    browser version first, so the current strings are not buried under ancient ones.
+    """
+    ranked, unranked = split_ranked(records)
+    return sorted(ranked, key=lambda r: (-(r.count or 0), r.user_agent)) + sorted(
+        unranked, key=lambda r: (-newest_major(r.user_agent), r.user_agent)
     )
-    unmeasured = sorted(
-        (r for r in records if r.count is None),
-        key=lambda r: (-newest_major(r.user_agent), r.user_agent),
-    )
-    return measured + unmeasured
 
 
 def apply_caps(merged: dict[str, list[Record]]) -> tuple[dict[str, list[Record]], int]:
     """Trim every category to its sub-cap, protecting current versions.
 
-    Each category reserves slots for unmeasured records. Measured traffic is
+    Each category reserves slots for unranked records. Measured traffic is
     dominated by old and degenerate strings — the single most common desktop UA
     carries no browser token at all — so a plain tail cut would discard the current
     browsers first and rebuild the staleness this pipeline exists to prevent.
@@ -133,14 +157,45 @@ def apply_caps(merged: dict[str, list[Record]]) -> tuple[dict[str, list[Record]]
         if cap is None:
             capped[category] = records
             continue
-        measured = [r for r in records if r.count is not None]
-        unmeasured = [r for r in records if r.count is None]
-        reserved = min(RESERVED_UNMEASURED, len(unmeasured))
-        kept_measured = measured[: max(0, cap - reserved)]
-        kept_unmeasured = unmeasured[: max(0, cap - len(kept_measured))]
-        capped[category] = kept_measured + kept_unmeasured
+        ranked, unranked = split_ranked(records)
+        reserved = min(RESERVED_UNRANKED, len(unranked))
+        kept_ranked = ranked[: max(0, cap - reserved)]
+        kept_unranked = unranked[: max(0, cap - len(kept_ranked))]
+        capped[category] = kept_ranked + kept_unranked
         discarded += len(records) - len(capped[category])
     return {c: v for c, v in capped.items() if v}, discarded
+
+
+def check_coverage(merged: dict[str, list[Record]]) -> list[Check]:
+    """Every Device Category must be published, and we must say who confirmed it.
+
+    A category that goes missing is not a coverage gap that degrades gracefully:
+    `check_regression` only notices a lost browser family, and bot strings carry no
+    browser family at all, so a whole category of crawlers could vanish and publish
+    cleanly. The build's promise is every Device Category, so an empty one fails.
+
+    The per-category source count is reported rather than enforced. Two sources
+    confirming a category is the goal, but refusing to publish because the second
+    one is down is exactly what ADR-0003 forbids.
+    """
+    checks = []
+    for category in CATEGORIES:
+        records = merged.get(category)
+        name = f"coverage/{category}"
+        if not records:
+            checks.append(Check(name, False, "error", "no records published"))
+            continue
+        confirming = {source for r in records for source in r.sources}
+        checks.append(
+            Check(
+                name,
+                True,
+                "warning",
+                f"{len(records)} records confirmed by {len(confirming)} source(s): "
+                f"{', '.join(sorted(confirming))}",
+            )
+        )
+    return checks
 
 
 def check_caps(merged: dict[str, list[Record]]) -> list[Check]:
@@ -218,18 +273,63 @@ def check_freshness(merged: dict[str, list[Record]], manifest: Manifest) -> list
     return checks
 
 
-def check_regression(merged: dict[str, list[Record]], previous: dict[str, Any]) -> list[Check]:
+def _explained_by(
+    rows: list[dict[str, Any]], family: str, now: int | None, down: set[str]
+) -> set[str]:
+    """The sources whose outage accounts for this family going backwards, or none.
+
+    Attribution, the same rule `check_shrinkage` applies to volume. The published
+    records carry their own Provenance, so a lost browser version can be traced
+    back to the sources that confirmed it; if every one of them is unreachable, the
+    loss is explained. If any of them is still answering, something dropped the
+    version and nothing is.
+
+    Only the records *above what we still hold* are candidates. A category almost
+    always keeps plenty of old strings from a source that is up, and none of them
+    is the reason the newest version disappeared — counting them would let an
+    unrelated source veto the explanation and block the run forever.
+    """
+    if not down:
+        return set()
+    lost = [
+        r
+        for r in rows
+        if (browsers.major(r.get("user_agent", ""), family) or 0) > (now or 0)
+    ]
+    # Provenance we cannot read cannot exonerate anyone. A record with no `sources`
+    # — a file published before the field existed — is not evidence that the
+    # sources that are up did not confirm it.
+    provenance = [r.get("sources") for r in lost]
+    if not lost or any(not isinstance(p, list) or not p for p in provenance):
+        return set()
+    confirming = set().union(*(set(p) for p in provenance))
+    return confirming if confirming <= down else set()
+
+
+def check_regression(
+    merged: dict[str, list[Record]],
+    previous: dict[str, Any],
+    down: set[str] | None = None,
+) -> list[Check]:
     """Did any browser family go backwards, or vanish, since we last published?
 
-    A dataset that regresses is never published, attributed or not: losing a version
-    we already had means something was lost, not merely not refreshed.
+    A dataset that regresses is never published when the loss is unexplained, which
+    is the case that matters: a family that disappears while the sources that
+    confirmed it are still up has been lost, not merely not refreshed.
 
     A family that disappears entirely is a regression too, and is the case this
     exists for. `check_freshness` deliberately only warns when a family is absent,
     because absence is a coverage gap rather than evidence of staleness — which
     leaves nobody to catch a family quietly dropping out of the dataset unless it is
     caught here.
+
+    `down` names the sources that failed this run. A family held last time only by
+    sources in that set is a degradation we can account for, and it warns. That is
+    the one relaxation, and it is the difference between a second source being worth
+    having and being decorative: with one source that measured, refusing to publish
+    on its outage would mean never publishing (ADR-0003).
     """
+    down = down or set()
     checks = []
     for category, rows in sorted(previous.items()):
         was_by_family = browsers.majors(r["user_agent"] for r in rows)
@@ -238,24 +338,21 @@ def check_regression(merged: dict[str, list[Record]], previous: dict[str, Any]) 
             was, now = was_by_family[family], now_by_family[family]
             if was is None:
                 continue  # never published this family; nothing to lose
+            name = f"regression/{category}/{family}"
             if now is None:
-                checks.append(
-                    Check(
-                        f"regression/{category}/{family}",
-                        False,
-                        "error",
-                        f"held {family} major {was} last run and holds none now",
-                    )
-                )
+                detail = f"held {family} major {was} last run and holds none now"
             elif now < was:
+                detail = f"max {family} major fell from {was} to {now}"
+            else:
+                continue
+            explained_by = _explained_by(rows, family, now, down)
+            if explained_by:
+                confirmed = ", ".join(sorted(explained_by))
                 checks.append(
-                    Check(
-                        f"regression/{category}/{family}",
-                        False,
-                        "error",
-                        f"max {family} major fell from {was} to {now}",
-                    )
+                    Check(name, True, "warning", f"{detail}; confirmed only by {confirmed}")
                 )
+            else:
+                checks.append(Check(name, False, "error", detail))
     return checks
 
 
@@ -354,7 +451,7 @@ def build_payload(
     the first would conclude the dataset is stale when it is not.
     """
     return {
-        "schema_version": 2,
+        "schema_version": 3,
         "generated_at": generated_at,
         "category": category,
         "sources": [r.to_json() for r in results],
@@ -368,19 +465,30 @@ def build_payload(
 
 
 def build_legacy(
-    category: str, records: list[Record], results: list[SourceResult], generated_at: str
+    category: str, records: list[Record], generated_at: str
 ) -> dict[str, Any]:
     """The v1 shape, kept alive as a projection so `jq .user_agents[0]` keeps working.
 
-    Only records with a measured count appear. Filling this list from unmeasured
-    strings would make it a list of things we cannot say are common, which is the
-    one claim this file exists to make.
+    This file is the ordering source's ranking and nothing else. Two reasons, and
+    they pull the same way:
+
+    - Only records that source measured appear. Filling this list from unmeasured
+      strings would make it a list of things we cannot say are common, which is the
+      one claim this file exists to make.
+    - No other source's measurements appear. They are not comparable with ours, so
+      including them would present a list of numbers as one ranking when it is two
+      samples compared (ADR-0009).
+
+    `scraped_from` names only the sources whose strings are actually in the list, so
+    it cannot claim a provenance the file does not carry. On a run where the ordering
+    source is down it is `[]` beside an empty list: nothing here came from anywhere.
     """
+    ranking = [r.user_agent for r in records if r.measured_by(ORDERING_SOURCE)]
     return {
         "scraped_at": generated_at,
-        "scraped_from": [r.name for r in results if r.ok],
+        "scraped_from": [ORDERING_SOURCE] if ranking else [],
         "type": CATEGORY_LABELS[category],
-        "user_agents": [r.user_agent for r in records if r.count is not None],
+        "user_agents": ranking,
     }
 
 

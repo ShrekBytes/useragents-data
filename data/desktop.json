@@ -1,13 +1,13 @@
 {
-  "schema_version": 2,
-  "generated_at": "2026-09-29T10:36:15.584734+00:00",
+  "schema_version": 3,
+  "generated_at": "2026-09-29T11:24:57.490733+00:00",
   "category": "desktop",
   "sources": [
     {
       "name": "useragents.me",
       "status": "ok",
       "error": null,
-      "collected_at": "2026-09-29T10:36:13.292234+00:00",
+      "collected_at": "2026-09-29T11:24:54.222645+00:00",
       "records": 126,
       "by_category": {
         "bot": 20,
@@ -17,6 +17,34 @@
       },
       "meta": {
         "window": "2026-09-20-to-2026-09-27"
+      }
+    },
+    {
+      "name": "winfuture23",
+      "status": "ok",
+      "error": null,
+      "collected_at": "2026-09-28T21:51:13.703Z",
+      "records": 150,
+      "by_category": {
+        "desktop": 69,
+        "mobile": 63,
+        "tablet": 18
+      },
+      "meta": {
+        "window": "48h"
+      }
+    },
+    {
+      "name": "crawler-user-agents",
+      "status": "ok",
+      "error": null,
+      "collected_at": "2026-09-29T11:24:55.113431+00:00",
+      "records": 2120,
+      "by_category": {
+        "bot": 2120
+      },
+      "meta": {
+        "patterns": 1501
       }
     }
   ],
@@ -38,17 +66,17 @@
       "samsung": 30,
       "chrome_ios": 154,
       "firefox_ios": 157,
-      "chrome": 154,
-      "firefox": 156,
+      "chrome": 155,
+      "firefox": 157,
       "safari": 27
     },
     "in_this_file_max_majors": {
       "edge": 154,
       "opera": 137,
-      "samsung": null,
+      "samsung": 30,
       "chrome_ios": null,
       "firefox_ios": null,
-      "chrome": 153,
+      "chrome": 155,
       "firefox": 156,
       "safari": 27
     }
@@ -61,6 +89,7 @@
       "device": null,
       "count": 10116,
       "percentage": 25.48,
+      "count_source": "useragents.me",
       "sources": [
         "useragents.me"
       ]
@@ -72,6 +101,7 @@
       "device": null,
       "count": 5088,
       "percentage": 12.81,
+      "count_source": "useragents.me",
       "sources": [
         "useragents.me"
       ]
@@ -83,6 +113,7 @@
       "device": null,
       "count": 4940,
       "percentage": 12.44,
+      "count_source": "useragents.me",
       "sources": [
         "useragents.me"
       ]
@@ -94,6 +125,7 @@
       "device": null,
       "count": 3599,
       "percentage": 9.06,
+      "count_source": "useragents.me",
       "sources": [
         "useragents.me"
       ]
@@ -105,6 +137,7 @@
       "device": null,
       "count": 2268,
       "percentage": 5.71,
+      "count_source": "useragents.me",
       "sources": [
         "useragents.me"
       ]
@@ -116,8 +149,10 @@
       "device": null,
       "count": 2048,
       "percentage": 5.16,
+      "count_source": "useragents.me",
       "sources": [
-        "useragents.me"
+        "useragents.me",
+        "winfuture23"
       ]
     },
     {
@@ -127,8 +162,10 @@
       "device": null,
       "count": 1029,
       "percentage": 2.59,
+      "count_source": "useragents.me",
       "sources": [
-        "useragents.me"
+        "useragents.me",
+        "winfuture23"
       ]
     },
     {
@@ -138,6 +175,7 @@
       "device": null,
       "count": 992,
       "percentage": 2.5,
+      "count_source": "useragents.me",
       "sources": [
         "useragents.me"
       ]
@@ -149,6 +187,7 @@
       "device": null,
       "count": 955,
       "percentage": 2.41,
+      "count_source": "useragents.me",
       "sources": [
         "useragents.me"
       ]
@@ -160,8 +199,10 @@
       "device": null,
       "count": 953,
       "percentage": 2.4,
+      "count_source": "useragents.me",
       "sources": [
-        "useragents.me"
+        "useragents.me",
+        "winfuture23"
       ]
     },
     {
@@ -171,6 +212,7 @@
       "device": null,
       "count": 940,
       "percentage": 2.37,
+      "count_source": "useragents.me",
       "sources": [
         "useragents.me"
       ]
@@ -182,6 +224,7 @@
       "device": null,
       "count": 938,
       "percentage": 2.36,
+      "count_source": "useragents.me",
       "sources": [
         "useragents.me"
       ]
@@ -193,6 +236,7 @@
       "device": null,
       "count": 935,
       "percentage": 2.35,
+      "count_source": "useragents.me",
       "sources": [
         "useragents.me"
       ]
@@ -204,6 +248,7 @@
       "device": null,
       "count": 924,
       "percentage": 2.33,
+      "count_source": "useragents.me",
       "sources": [
         "useragents.me"
       ]
@@ -215,6 +260,7 @@
       "device": null,
       "count": 921,
       "percentage": 2.32,
+      "count_source": "useragents.me",
       "sources": [
         "useragents.me"
       ]
@@ -226,8 +272,10 @@
       "device": null,
       "count": 705,
       "percentage": 1.78,
+      "count_source": "useragents.me",
       "sources": [
-        "useragents.me"
+        "useragents.me",
+        "winfuture23"
       ]
     },
     {
@@ -237,8 +285,10 @@
       "device": null,
       "count": 641,
       "percentage": 1.61,
+      "count_source": "useragents.me",
       "sources": [
-        "useragents.me"
+        "useragents.me",
+        "winfuture23"
       ]
     },
     {
@@ -248,8 +298,10 @@
       "device": null,
       "count": 626,
       "percentage": 1.58,
+      "count_source": "useragents.me",
       "sources": [
-        "useragents.me"
+        "useragents.me",
+        "winfuture23"
       ]
     },
     {
@@ -259,6 +311,7 @@
       "device": null,
       "count": 574,
       "percentage": 1.45,
+      "count_source": "useragents.me",
       "sources": [
         "useragents.me"
       ]
@@ -270,8 +323,21 @@
       "device": null,
       "count": 514,
       "percentage": 1.29,
+      "count_source": "useragents.me",
       "sources": [
         "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:156.0) Gecko/20100101 Firefox/156.0",
+      "os": "macOS 10 15",
+      "browser": "Firefox 156.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
       ]
     },
     {
@@ -281,6 +347,7 @@
       "device": null,
       "count": null,
       "percentage": null,
+      "count_source": null,
       "sources": [
         "useragents.me"
       ]
@@ -292,8 +359,21 @@
       "device": null,
       "count": null,
       "percentage": null,
+      "count_source": null,
       "sources": [
         "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; rv:156.0) Gecko/20100101 Firefox/156.0",
+      "os": "Windows NT 10.0",
+      "browser": "Firefox 156.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
       ]
     },
     {
@@ -303,6 +383,7 @@
       "device": null,
       "count": null,
       "percentage": null,
+      "count_source": null,
       "sources": [
         "useragents.me"
       ]
@@ -314,6 +395,7 @@
       "device": null,
       "count": null,
       "percentage": null,
+      "count_source": null,
       "sources": [
         "useragents.me"
       ]
@@ -325,8 +407,10 @@
       "device": null,
       "count": null,
       "percentage": null,
+      "count_source": null,
       "sources": [
-        "useragents.me"
+        "useragents.me",
+        "winfuture23"
       ]
     },
     {
@@ -336,6 +420,7 @@
       "device": null,
       "count": null,
       "percentage": null,
+      "count_source": null,
       "sources": [
         "useragents.me"
       ]
@@ -347,8 +432,58 @@
       "device": null,
       "count": null,
       "percentage": null,
+      "count_source": null,
       "sources": [
-        "useragents.me"
+        "useragents.me",
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+      "os": "Windows NT 10.0",
+      "browser": "Chrome 155.0.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:155.0) Gecko/20100101 Firefox/155.0",
+      "os": "Windows NT 10.0",
+      "browser": "Firefox 155.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (X11; Linux x86_64; rv:155.0) Gecko/20100101 Firefox/155.0",
+      "os": "Linux",
+      "browser": "Firefox 155.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:155.0) Gecko/20100101 Firefox/155.0",
+      "os": "Linux",
+      "browser": "Firefox 155.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
       ]
     },
     {
@@ -358,8 +493,33 @@
       "device": null,
       "count": null,
       "percentage": null,
+      "count_source": null,
       "sources": [
         "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+      "os": "macOS 10 15 7",
+      "browser": "Chrome 154.0.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36 Edg/154.0.0.0",
+      "os": "macOS 10 15 7",
+      "browser": "Edge 154.0.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
       ]
     },
     {
@@ -369,8 +529,57 @@
       "device": null,
       "count": null,
       "percentage": null,
+      "count_source": null,
       "sources": [
         "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+      "os": "Windows NT 10.0",
+      "browser": "Chrome 154.0.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:154.0) Gecko/20100101 Firefox/154.0",
+      "os": "Windows NT 10.0",
+      "browser": "Firefox 154.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:154.0) Gecko/20100101 Firefox/154.0 TO-Browser/TOB7.154.0.208_01",
+      "os": "Windows NT 10.0",
+      "browser": "TO Browser 7.154.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+      "os": "Linux",
+      "browser": "Chrome 154.0.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
       ]
     },
     {
@@ -380,8 +589,21 @@
       "device": null,
       "count": null,
       "percentage": null,
+      "count_source": null,
       "sources": [
         "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36 Edg/153.0.0.0",
+      "os": "macOS 10 15 7",
+      "browser": "Edge 153.0.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
       ]
     },
     {
@@ -391,6 +613,7 @@
       "device": null,
       "count": null,
       "percentage": null,
+      "count_source": null,
       "sources": [
         "useragents.me"
       ]
@@ -402,6 +625,7 @@
       "device": null,
       "count": null,
       "percentage": null,
+      "count_source": null,
       "sources": [
         "useragents.me"
       ]
@@ -413,6 +637,7 @@
       "device": null,
       "count": null,
       "percentage": null,
+      "count_source": null,
       "sources": [
         "useragents.me"
       ]
@@ -424,6 +649,7 @@
       "device": null,
       "count": null,
       "percentage": null,
+      "count_source": null,
       "sources": [
         "useragents.me"
       ]
@@ -435,6 +661,7 @@
       "device": null,
       "count": null,
       "percentage": null,
+      "count_source": null,
       "sources": [
         "useragents.me"
       ]
@@ -446,6 +673,7 @@
       "device": null,
       "count": null,
       "percentage": null,
+      "count_source": null,
       "sources": [
         "useragents.me"
       ]
@@ -457,8 +685,10 @@
       "device": null,
       "count": null,
       "percentage": null,
+      "count_source": null,
       "sources": [
-        "useragents.me"
+        "useragents.me",
+        "winfuture23"
       ]
     },
     {
@@ -468,6 +698,7 @@
       "device": null,
       "count": null,
       "percentage": null,
+      "count_source": null,
       "sources": [
         "useragents.me"
       ]
@@ -479,8 +710,45 @@
       "device": null,
       "count": null,
       "percentage": null,
+      "count_source": null,
       "sources": [
         "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36",
+      "os": "Linux",
+      "browser": "Chrome 153.0.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36 Edg/153.0.4234.49",
+      "os": "Linux",
+      "browser": "Edge 153.0.4234",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (X11; Linux x86_64; rv:153.0) Gecko/20100101 Firefox/153.0",
+      "os": "Linux",
+      "browser": "Firefox 153.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
       ]
     },
     {
@@ -490,6 +758,7 @@
       "device": null,
       "count": null,
       "percentage": null,
+      "count_source": null,
       "sources": [
         "useragents.me"
       ]
@@ -501,8 +770,321 @@
       "device": null,
       "count": null,
       "percentage": null,
+      "count_source": null,
       "sources": [
         "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
+      "os": "macOS 10 15 7",
+      "browser": "Chrome 152.0.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
+      "os": "Windows NT 10.0",
+      "browser": "Chrome 152.0.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 AVG/152.0.0.0",
+      "os": "Windows NT 10.0",
+      "browser": "Chrome 152.0.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
+      "os": "Chrome OS 14541 0 0",
+      "browser": "Chrome 152.0.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
+      "os": "Linux",
+      "browser": "Chrome 152.0.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",
+      "os": "macOS 10 15 7",
+      "browser": "Chrome 151.0.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0",
+      "os": "Windows NT 10.0",
+      "browser": "Edge 151.0.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",
+      "os": "Linux",
+      "browser": "Chrome 151.0.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+      "os": "macOS 10 15 7",
+      "browser": "Chrome 150.0.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+      "os": "Windows NT 10.0",
+      "browser": "Chrome 150.0.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36 Edg/150.0.0.0",
+      "os": "Windows NT 10.0",
+      "browser": "Edge 150.0.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+      "os": "Linux",
+      "browser": "Chrome 150.0.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+      "os": "macOS 10 15 7",
+      "browser": "Chrome 149.0.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+      "os": "Windows NT 10.0",
+      "browser": "Chrome 149.0.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0",
+      "os": "Windows NT 10.0",
+      "browser": "Edge 149.0.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36",
+      "os": "Windows NT 10.0",
+      "browser": "Chrome 148.0.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36",
+      "os": "Linux",
+      "browser": "Chrome 147.0.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+      "os": "Windows NT 10.0",
+      "browser": "Chrome 146.0.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "os": "Windows NT 10.0",
+      "browser": "Chrome 145.0.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+      "os": "Windows NT 10.0",
+      "browser": "Chrome 144.0.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+      "os": "Windows NT 10.0",
+      "browser": "Chrome 143.0.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+      "os": "Windows NT 10.0",
+      "browser": "Chrome 142.0.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:140.0) Gecko/20100101 Firefox/140.0",
+      "os": "Windows NT 10.0",
+      "browser": "Firefox 140.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (X11; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0",
+      "os": "Linux",
+      "browser": "Firefox 140.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+      "os": "Windows NT 10.0",
+      "browser": "Chrome 139.0.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36",
+      "os": "macOS 10 15 7",
+      "browser": "Chrome 137.0.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
       ]
     },
     {
@@ -512,6 +1094,7 @@
       "device": null,
       "count": null,
       "percentage": null,
+      "count_source": null,
       "sources": [
         "useragents.me"
       ]
@@ -523,6 +1106,7 @@
       "device": null,
       "count": null,
       "percentage": null,
+      "count_source": null,
       "sources": [
         "useragents.me"
       ]
@@ -534,8 +1118,153 @@
       "device": null,
       "count": null,
       "percentage": null,
+      "count_source": null,
       "sources": [
         "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36",
+      "os": "Linux",
+      "browser": "Chrome 137.0.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 OPR/137.0.0.0",
+      "os": "Linux",
+      "browser": "Opera 137.0.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 OPR/136.0.0.0",
+      "os": "Windows NT 10.0",
+      "browser": "Opera 136.0.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 OPR/135.0.0.0",
+      "os": "Windows NT 10.0",
+      "browser": "Opera 135.0.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:109.0) Gecko/20100101 Firefox/115.0",
+      "os": "Windows NT 6.1",
+      "browser": "Firefox 115.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Windows NT 6.1; rv:109.0) Gecko/20100101 Firefox/115.0",
+      "os": "Windows NT 6.1",
+      "browser": "Firefox 115.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36",
+      "os": "Windows NT 10.0",
+      "browser": "Chrome 109.0.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/30.0 Chrome/143.0.0.0 Safari/537.36",
+      "os": "Linux",
+      "browser": "Samsung Internet Browser 30.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.0 Safari/605.1.15",
+      "os": "macOS",
+      "browser": "Safari 27.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.0 Safari/605.1.15 Ddg/27.0",
+      "os": "macOS",
+      "browser": "Safari 27.0",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.0.1 Safari/605.1.15",
+      "os": "macOS",
+      "browser": "Safari 27.0.1",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.2 Safari/605.1.15",
+      "os": "macOS",
+      "browser": "Safari 27.2",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
       ]
     },
     {
@@ -545,8 +1274,81 @@
       "device": null,
       "count": null,
       "percentage": null,
+      "count_source": null,
       "sources": [
         "useragents.me"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.4 Safari/605.1.15",
+      "os": "macOS",
+      "browser": "Safari 26.4",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.6 Safari/605.1.15",
+      "os": "macOS",
+      "browser": "Safari 26.6",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.6.1 Safari/605.1.15",
+      "os": "macOS",
+      "browser": "Safari 26.6.1",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.6.2 Safari/605.1.15",
+      "os": "macOS",
+      "browser": "Safari 26.6.2",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Safari/605.1.15",
+      "os": "macOS",
+      "browser": "Safari 18.6",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
+      ]
+    },
+    {
+      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.14 Safari/605.1.15",
+      "os": "macOS",
+      "browser": "Safari 17.14",
+      "device": null,
+      "count": null,
+      "percentage": null,
+      "count_source": null,
+      "sources": [
+        "winfuture23"
       ]
     }
   ]

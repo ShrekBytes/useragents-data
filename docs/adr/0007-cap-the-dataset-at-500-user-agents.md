@@ -32,6 +32,13 @@ Measured records may only consume the remainder. So a growing pile of measured
 traffic can never evict every current-version string, which it otherwise would
 eventually do since the measured block grows monotonically as sources are added.
 
+**Amended by [ADR-0009](0009-order-by-one-designated-source.md).** "Measured" and
+"unmeasured" became "ranked" and "unranked", and the reservation follows the new
+wording. The rule is unchanged; only the boundary moved. A record the ordering
+source did not measure is unranked even when another source published a count for
+it, so a second counting source cannot spend the budget on a ranking this pipeline
+never made.
+
 ## Why sub-caps rather than one global 500
 
 A single global cut is taken entirely by whichever category is largest. Bots are

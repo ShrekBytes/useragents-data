@@ -69,6 +69,17 @@ def unhealthy(sources: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
     }
 
 
+def last_seen(source: dict[str, Any]) -> str:
+    """When this source last collected, in its own terms.
+
+    Sources describe their coverage differently — useragents.me names the week it
+    published, WinFuture23 names a 48h window — and only some publish a timestamp.
+    `collected_at` is the one field the schema guarantees, so it leads; a source
+    that does not record one falls back to whatever window it does name.
+    """
+    return source.get("collected_at") or source.get("meta", {}).get("window") or "-"
+
+
 def summary(sources: dict[str, dict[str, Any]], runs: list[dict[str, Any]]) -> str:
     lines = ["## User agent update", ""]
     if not sources:
@@ -86,7 +97,7 @@ def summary(sources: dict[str, dict[str, Any]], runs: list[dict[str, Any]]) -> s
     for name, source in sorted(sources.items()):
         lines.append(
             f"| `{name}` | {source['status']} | {source['records']} "
-            f"| {source.get('meta', {}).get('window', '-')} | {source['runs_absent']} |"
+            f"| {last_seen(source)} | {source['runs_absent']} |"
         )
 
     lines.append("")

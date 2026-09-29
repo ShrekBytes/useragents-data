@@ -18,10 +18,15 @@ import requests
 from uadata import browsers, pipeline
 from uadata.manifest import fetch_manifest
 from uadata.model import SourceError, SourceResult
-from uadata.sources import USER_AGENT, UserAgentsMe
+from uadata.sources import USER_AGENT, CrawlerUserAgents, UserAgentsMe, WinFuture23
 
 # Adding a source is the only thing Phase 2 should need to touch here.
-SOURCES = [UserAgentsMe()]
+#
+# Independent by construction, not by claim: useragents.me measures frequency,
+# WinFuture23 is CC0 current-version traffic, crawler-user-agents is observed
+# crawler strings. Any one of them can vanish without taking the dataset with it
+# (ADR-0008). `pipeline.ORDERING_SOURCE` names the one whose counts we rank by.
+SOURCES = [UserAgentsMe(), WinFuture23(), CrawlerUserAgents()]
 
 
 def _annotate(level: str, title: str, detail: str) -> None:
@@ -78,6 +83,10 @@ def main(argv: list[str] | None = None) -> int:
     manifest = fetch_manifest(session)
     merged = pipeline.merge_sources(results)
 
+    # Which sources could not be reached this run. Every check that would otherwise
+    # read a loss as unexplained asks this first (ADR-0003).
+    down = {r.name for r in results if not r.ok}
+
     # Cap before the checks run, so every check sees exactly what would be
     # published. Capping afterwards would let a regression hide in the discarded
     # tail, and would report freshness for records no consumer can see.
@@ -85,8 +94,9 @@ def main(argv: list[str] | None = None) -> int:
 
     checks = (
         pipeline.check_freshness(merged, manifest)
-        + pipeline.check_regression(merged, pipeline.load_previous())
+        + pipeline.check_regression(merged, pipeline.load_previous(), down=down)
         + pipeline.check_shrinkage(results, pipeline.load_history())
+        + pipeline.check_coverage(merged)
         + pipeline.check_caps(merged)
     )
 
@@ -117,7 +127,7 @@ def main(argv: list[str] | None = None) -> int:
         pipeline.write_json(f"{pipeline.DATA_DIR}/{category}.json", payload)
         pipeline.write_json(
             f"{pipeline.LEGACY_DIR}/{category}.json",
-            pipeline.build_legacy(category, records, results, generated_at),
+            pipeline.build_legacy(category, records, generated_at),
         )
         measured = sum(1 for r in records if r.count is not None)
         print(f"  wrote {category:8} {len(records):4} records ({measured} measured)")

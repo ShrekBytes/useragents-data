@@ -36,6 +36,11 @@ class Record:
     `count`/`percentage` are only populated by sources that measure real traffic.
     A null count is not missing data to be filled in later; it means no source has
     measured this string, and the record must never be presented as "most common".
+
+    `count_source` names the source that measured them. It is not redundant with
+    `sources`: a source can confirm a string exists without saying how often it
+    was seen, and a frequency is only comparable within the source that measured
+    it (ADR-0009).
     """
 
     user_agent: str
@@ -44,7 +49,30 @@ class Record:
     device: str | None = None
     count: int | None = None
     percentage: float | None = None
+    count_source: str | None = None
     sources: tuple[str, ...] = ()
+
+    def __post_init__(self) -> None:
+        # Refused here, at construction, because by publication the record is
+        # already filed into the wrong block and nobody would notice (ADR-0009).
+        if self.count is not None and self.count_source is None:
+            raise ValueError(
+                f"count on {self.user_agent!r} names no source; a frequency is only "
+                "comparable within the source that measured it"
+            )
+        if self.count is None and (self.percentage is not None or self.count_source):
+            # The other direction is worse. A record claiming a source but no count
+            # reads as a measured zero, and `measured_by` would sort it into the
+            # ranked block ahead of every real measurement. A percentage with
+            # nothing behind it is a share of a sample that was never stated.
+            raise ValueError(
+                f"{self.user_agent!r} claims {self.count_source or 'a frequency'} "
+                "with no count behind it"
+            )
+
+    def measured_by(self, source: str) -> bool:
+        """Did `source` measure this record's frequency?"""
+        return self.count_source == source
 
     def to_json(self) -> dict[str, Any]:
         return {
@@ -54,26 +82,54 @@ class Record:
             "device": self.device,
             "count": self.count,
             "percentage": self.percentage,
+            "count_source": self.count_source,
             "sources": list(self.sources),
         }
 
 
-def merge_records(a: Record, b: Record) -> Record:
+def _measurement(record: Record) -> tuple[int, float | None, str] | None:
+    """A record's frequency claim as one indivisible thing, or None.
+
+    `__post_init__` guarantees the three fields travel together; this exists so
+    `merge_records` cannot take `count` from one record and `percentage` from
+    another, which would publish a number and a share of a sample that never
+    existed, attributed to whichever side happened to be first.
+    """
+    if record.count is None:
+        return None
+    return (record.count, record.percentage, record.count_source)
+
+
+def merge_records(a: Record, b: Record, prefer: str | None = None) -> Record:
     """Combine two records describing the same string.
 
     Frequency data is never averaged or summed across sources. Counts are only
-    comparable within the source that measured them, so the first non-null value
-    wins and provenance records that both sources confirmed the string.
+    comparable within the source that measured them, so one whole measurement wins
+    and provenance records that both sources confirmed the string.
+
+    `prefer` names the source whose measurement we publish when both sides carry
+    one. Picking whichever was ingested first would silently drop the designated
+    ordering source's number whenever a second counting source is listed ahead of
+    it in `SOURCES`.
     """
     if a.user_agent != b.user_agent:
         raise ValueError("refusing to merge different user agents")
+
+    first, second = _measurement(a), _measurement(b)
+    if prefer and first is not None and second is not None:
+        measurement = second if second[2] == prefer else first
+    else:
+        measurement = first or second
+    count, percentage, count_source = measurement or (None, None, None)
+
     return Record(
         user_agent=a.user_agent,
         os=a.os or b.os,
         browser=a.browser or b.browser,
         device=a.device or b.device,
-        count=a.count if a.count is not None else b.count,
-        percentage=a.percentage if a.percentage is not None else b.percentage,
+        count=count,
+        percentage=percentage,
+        count_source=count_source,
         sources=tuple(sorted(set(a.sources) | set(b.sources))),
     )
 
