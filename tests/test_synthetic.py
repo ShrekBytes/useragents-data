@@ -70,8 +70,11 @@ EXPECTED = {
     # if it were a Chromium string.
     "firefox-firefox-windows": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:156.0) "
     "Gecko/20100101 Firefox/156.0",
-    # `10.15` with dots, against Chromium's `10_15_7` with underscores. Both are
-    # frozen; neither is the macOS version.
+    # `10.15` with dots, against Chromium's `10_15_7` with underscores. Neither is
+    # the macOS version, and only Chromium's is a *frozen* one — Gecko hardcodes it.
+    # The fidelity check compares the OS family, which is `macOS` whether this says
+    # 10.15 or 15.8, so this entry is guarded by nothing but being written out here.
+    # See ADR-0011.
     "firefox-firefox-mac": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:156.0) "
     "Gecko/20100101 Firefox/156.0",
     "firefox-firefox-linux": "Mozilla/5.0 (X11; Linux x86_64; rv:156.0) "

@@ -416,9 +416,16 @@ data, nothing in `uadata/sources.py` needs either.
 Versions come from the same manifest the staleness assertion reads, so the
 generator and the oracle cannot disagree about what "current" means
 ([ADR-0005](docs/adr/0005-single-version-manifest.md)). Platform tokens are
-frozen literals, because Chromium's User-Agent reduction froze them —
-`Linux; Android 10; K` is what a current Chrome on Android sends, and it is *not*
-a claim about any particular device.
+literals, and they are literals for two different reasons, which matters. Chromium's
+are **frozen**: its User-Agent reduction replaced the platform segment with values
+that do not change with the user's operating system, so `Linux; Android 10; K` is
+what a current Chrome on Android sends and is *not* a claim about any particular
+device. Gecko did no User-Agent reduction at all. Firefox's tokens are hardcoded for
+Web compatibility — `Intel Mac OS X 10.15` is a literal in `nsHttpHandler.cpp`, not a
+reported version — so they need no version either, but they are not frozen and can
+change in any commit. The
+[ADR](docs/adr/0011-synthetic-dataset-shape-and-fidelity.md) records the evidence and
+the two alternatives that were rejected.
 
 14 templates cover Chrome, Edge and Firefox on Windows, macOS and Linux, plus
 Chrome on Android as phone and tablet, and Firefox release and ESR. Not

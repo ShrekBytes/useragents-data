@@ -71,7 +71,82 @@ macOS.
 
 Gecko keeps its own platform punctuation, and this is one of the tokens that is easy to get
 wrong: `Macintosh; Intel Mac OS X 10.15` with dots, against Chromium's `10_15_7` with
-underscores. Both are frozen. Neither is the macOS version.
+underscores. Neither is the macOS version, but they got there differently. An earlier
+version of this ADR said both were frozen, which is true of Chromium and false of Gecko,
+and that is what the next section settles.
+
+### Gecko's `10.15` is a hardcode, not a reduction
+
+Two Observed Firefox-on-macOS strings in the corpus report a version a frozen token
+cannot produce:
+
+| Source | String |
+| --- | --- |
+| useragents.me | `Mozilla/5.0 (Macintosh; Intel Mac OS X 15.8; rv:156.0) Gecko/20100101 Firefox/156.0` |
+| useragents.me | `Mozilla/5.0 (Macintosh; Intel Mac OS X 15.8; rv:153.0) Gecko/20100101 Firefox/153.0` |
+| winfuture23 | `Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:156.0) Gecko/20100101 Firefox/156.0` |
+
+Three options were open: withdraw the Gecko macOS template, source a macOS version, or
+keep `10.15` and correct the reasoning this ADR gave for it. What Mozilla says, as of
+2026-09-29:
+
+- **The source file is a literal.** `mozilla-firefox/firefox` `main`,
+  `netwerk/protocol/http/nsHttpHandler.cpp`, in `InitUserAgentComponents()` under
+  `#elif defined(XP_MACOSX)`: `mOscpu.AssignLiteral("Intel Mac OS X 10.15");`.
+  `BuildUserAgent()` appends `mOscpu` verbatim, and nothing in mozilla-central
+  substitutes the machine's real macOS version — `mCompatDevice`, the one component that
+  can displace it, is set on iOS and Android only. The literal is keyed to no build, no
+  channel and no major, so it is the same token in the release build and in ESR, and the
+  `firefox_esr-mac` string a build publishes is covered by it as much as the release
+  string the corpus contradicts.
+- **Bug 1679929**, "Cap the User-Agent string's reported macOS version at 10.15", is
+  `VERIFIED` / `FIXED`, uplifted to Firefox 87.
+- **MDN's [Firefox UA string reference](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/User-Agent/Firefox)**,
+  last modified 2026-04-13, still documents the cap: "Starting in Firefox 87, Firefox
+  caps the reported macOS version number to 10.15".
+
+**Keep `10.15`, correct the reasoning.** The corpus cannot be the evidence either way,
+and the reason is in the table rather than beside it. At Firefox 156.0 — the newest
+build in the corpus, and the major both sources are quoted at — the two sources
+**disagree about the token**. One major, two platform versions, one from each source. A
+corpus that varies inside a single build is reporting what its clients send, and not all
+of them are stock Firefox; it is not reporting what Firefox ships. The 153.0 string
+settles nothing either, because the corpus holds no 153.0 string carrying `10.15` to set
+it against.
+
+The other two options. **Withdrawing the template** would take the Synthetic dataset to
+four records to escape a defect that is in the reasoning and not in the token: the string
+does not name a macOS version that any current Firefox does not send. **Sourcing the
+version** fails for the reason ADR-0010 rejects deriving Safari from macOS — there is no
+vendor feed for a macOS version, and the corpus would supply `15.8`, which is past its
+moment. That is `latest/`, the thing ADR-0004 retired.
+
+**What was wrong is the word "frozen", and only for Gecko.** Chromium froze its platform
+segment as a deliberate privacy reduction, and documents the reduced tokens as values
+that do not change with the user's operating system. Gecko did no User-Agent reduction:
+on macOS and Windows its tokens are hardcodes put there for Web compatibility, so that a
+macOS 11+ machine keeps sending a `10.x` token to the long tail of sites that broke when
+Apple moved to `11_0_0`. The two have different failure modes, which is why the
+distinction is worth writing down. A reduced token can only change if Google decides to
+un-reduce it, and Chromium's documentation is where that would show up. A hardcode can
+change in any commit, silently, and the way to find out is to read it — so the source
+file is named above and in the generator, rather than a documentation link that can
+drift underneath it.
+
+Gecko does reduce *one* thing in that same function, and the corpus holds a string
+current Firefox cannot send because of it: Android versions below 10 are reported as
+`Android 10`, to reduce fingerprintable information, which is what the corpus's
+`Android 9; Mobile; P20HD_ROW; rv:134.0esr` is. That is why this decision does not rest
+on Gecko's Android tokens, where the corpus can speak to what it saw, and rests on the
+macOS literal, where the corpus contradicts itself.
+
+**The bar cannot see this class of defect, by design.** Both parsers report the OS
+*family* — `Mac OS X` against `macOS` — which `10.15` and `15.8` both satisfy. The bar
+answers "would a real parser place this string?", a question about a string; "is this the
+version the vendor sends?" is a question about a source file. What guards the token is
+`test_every_string_is_the_one_a_current_client_sends`, which pins it from outside the
+generator. What that test cannot do is notice the pinned value going stale, which is
+what the citation above is for.
 
 ### What is deliberately not generated
 

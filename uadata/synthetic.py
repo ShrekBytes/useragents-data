@@ -25,8 +25,10 @@ What is deliberately absent, and why:
 
 - **Firefox on Android.** Mozilla publishes no Android Firefox version in the
   product-details feed, and unlike Chromium it has not reduced the platform
-  segment — the string genuinely carries the device's Android version, which we
-  would have to invent. Desktop Firefox has no such problem and is generated.
+  segment away — the string carries the device's real Android version, which we
+  would have to invent. (Gecko does floor versions below 10 to `Android 10` to
+  reduce fingerprinting, but everything from 10 up is reported as it is.) Desktop
+  Firefox has no such problem and is generated.
 - **Safari, and every iOS string.** Apple publishes no current version anywhere
   (ADR-0010), and iOS forks are `CriOS`/`FxiOS` whose only current version would
   come from that same absent feed.
@@ -57,7 +59,20 @@ CHROMIUM_PLATFORMS = {
 
 # Gecko keeps the platform's own punctuation, which is one of the two platform
 # tokens easy to get wrong: `10.15` with dots, against Chromium's `10_15_7` with
-# underscores. Both are frozen; neither is the macOS version.
+# underscores. Neither is the macOS version, but only Chromium's is a *frozen* one.
+# Gecko did no User-Agent reduction: `nsHttpHandler.cpp` hardcodes `Intel Mac OS X
+# 10.15` in `nsHttpHandler::InitUserAgentComponents` for Web compatibility (bug
+# 1679929, Firefox 87), and `BuildUserAgent` appends it verbatim. The literal is
+# keyed to no build and no channel, so ESR carries it as much as the release does.
+# These are literals for the same practical reason — no version needs sourcing — by
+# a different mechanism, and the mechanism is what has to be re-checked when a token
+# changes.
+#
+# Do not "fix" `10.15` from the Observed corpus. Two Firefox-on-macOS strings in it
+# report a live `15.8`, and the corpus cannot settle the question: at Firefox 156.0
+# its two sources disagree about the token, so it is reporting what its clients send
+# rather than what Firefox ships. ADR-0011 records the evidence and the two rejected
+# alternatives.
 GECKO_PLATFORMS = {
     "windows": "Windows NT 10.0; Win64; x64",
     "mac": "Macintosh; Intel Mac OS X 10.15",
@@ -103,7 +118,7 @@ class Template:
 
     name: str
     product: str  # the manifest entry that supplies the version
-    platform: str  # which frozen platform token to use
+    platform: str  # which platform token to use, keyed by engine's own table
     engine: str  # chromium | gecko | edge
     family: str  # a name from browsers.FAMILY_NAMES
     category: str  # Device Category, and the file it is published to
