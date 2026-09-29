@@ -223,20 +223,44 @@ class CoverageTests(unittest.TestCase):
 
 class FreshnessTests(unittest.TestCase):
     def setUp(self):
-        self.current = Manifest(versions={"windows": 155, "firefox": 156})
+        self.current = Manifest(
+            versions={"windows": 155, "firefox": 156, "edge_windows": 154, "safari": 27}
+        )
 
     def test_current_data_passes(self):
         checks = pipeline.check_freshness(
-            {"desktop": [record(CHROME_155), record(FIREFOX_156)]}, self.current
+            {
+                "desktop": [
+                    record(CHROME_155),
+                    record(FIREFOX_156),
+                    record(EDGE_154),
+                    record(SAFARI_27),
+                ]
+            },
+            self.current,
         )
         self.assertTrue(all(c.ok for c in checks), checks)
 
     def test_one_major_behind_passes(self):
+        # ADR-0010: the run is weekly and the source data is at most a week old,
+        # so one major behind is the newest thing there was, not a freeze.
         checks = pipeline.check_freshness(
-            {"desktop": [record(CHROME_134.replace("134", "154"))]}, self.current
+            {"desktop": [record(CHROME_155.replace("155", "154"))]}, self.current
         )
         chrome = next(c for c in checks if c.name == "freshness/chrome")
         self.assertTrue(chrome.ok, chrome.detail)
+
+    def test_two_majors_behind_fails(self):
+        # The other side of that boundary, and the shortest freeze the oracle can
+        # see. Asserting it in both directions is what makes the tolerance a
+        # decision rather than a number that happens to be there.
+        checks = pipeline.check_freshness(
+            {"desktop": [record(CHROME_155.replace("155", "153"))]}, self.current
+        )
+        chrome = next(c for c in checks if c.name == "freshness/chrome")
+        self.assertFalse(chrome.ok)
+        self.assertEqual(chrome.level, "error")
+        self.assertIn("153", chrome.detail)
 
     def test_the_thirteen_month_freeze_fails(self):
         # Exactly the old repo: pipeline healthy, source serving 134, world at 155.
@@ -244,6 +268,40 @@ class FreshnessTests(unittest.TestCase):
         chrome = next(c for c in checks if c.name == "freshness/chrome")
         self.assertFalse(chrome.ok)
         self.assertIn("134", chrome.detail)
+
+    def test_edge_and_safari_are_asserted_against_their_vendors(self):
+        # Every family with a vendor feed is checked, not the two that were
+        # convenient when this was first written. An unasserted family is a family
+        # whose staleness nothing can see.
+        checks = pipeline.check_freshness(
+            {"desktop": [record(EDGE_154), record(SAFARI_27)]}, self.current
+        )
+        self.assertTrue(all(c.ok for c in checks), [c.detail for c in checks])
+        self.assertEqual(
+            sorted(c.name for c in checks),
+            ["freshness/chrome", "freshness/edge", "freshness/firefox", "freshness/safari"],
+        )
+
+    def test_a_stale_edge_fails(self):
+        # Edge carries its own major in `Edg/`, so a dataset that stopped
+        # refreshing its Edge strings can look current on the Chrome assertion.
+        checks = pipeline.check_freshness(
+            {"desktop": [record(CHROME_155), record(EDGE_100)]}, self.current
+        )
+        edge = next(c for c in checks if c.name == "freshness/edge")
+        self.assertFalse(edge.ok)
+        self.assertEqual(edge.level, "error")
+        self.assertIn("100", edge.detail)
+
+    def test_a_stale_safari_fails(self):
+        # Safari is the family most easily asserted for in name only: it rides the
+        # operating system release, so a dataset can carry Version/20 for a year
+        # with every other family current and nothing else complaining.
+        checks = pipeline.check_freshness({"desktop": [record(SAFARI_20)]}, self.current)
+        safari = next(c for c in checks if c.name == "freshness/safari")
+        self.assertFalse(safari.ok)
+        self.assertEqual(safari.level, "error")
+        self.assertIn("20", safari.detail)
 
     def test_missing_manifest_skips_rather_than_passing_silently(self):
         checks = pipeline.check_freshness(

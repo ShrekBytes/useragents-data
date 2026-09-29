@@ -37,8 +37,20 @@ STATE_PATH = os.path.join("state", "history.json")
 # unmeasured block rather than being compared against ours.
 ORDERING_SOURCE = "useragents.me"
 
-# One major of slack absorbs a release landing between the source's last publish
-# and our Saturday run. Two majors behind is a freeze, and is a hard failure.
+# One major of slack, decided rather than inherited (ADR-0010).
+#
+# The run is weekly and the source data is at most a week old, while a browser
+# major ships more often than the run does, so in the days after a release the
+# newest data there is is legitimately one major behind the vendor. Strict
+# equality would refuse to publish it and leave the dataset a further week older.
+#
+# Not because vendor channels disagree: `MANIFEST_PRODUCTS` reads a product's
+# expected version as the *newest* of its entries, so a lagging platform cannot
+# lower the bar. That was the reason offered for this constant, and it does not
+# hold.
+#
+# The cost, stated rather than discovered later: this oracle cannot see a freeze
+# shorter than two majors.
 TOLERANCE_MAJORS = 1
 
 # Per-source baselines: warn under this fraction of the recent median, fail under
@@ -71,9 +83,17 @@ RESERVED_UNRANKED = 20
 # Freshness is checked against these families only, because it needs a vendor to
 # compare with. Regression is checked against every family in
 # `browsers.FAMILY_NAMES`, since it only needs what we published last time.
+#
+# A family is in the first list exactly when some vendor publishes a current
+# version we can read. Opera, Samsung Internet and the iOS forks have no such
+# feed, so nothing is asserted about them and the regression check is all they
+# have — which is why coverage there rests on a family going backwards, not on a
+# family going stale (ADR-0010).
 MANIFEST_PRODUCTS = {
     "chrome": ("windows", "mac", "linux", "android"),
     "firefox": ("firefox",),
+    "edge": ("edge_windows", "edge_macos", "edge_linux"),
+    "safari": ("safari",),
 }
 
 
