@@ -220,7 +220,9 @@ ordering, all three checks and both output formats are already per-source.
 
 ## Licence
 
-MIT — see [LICENSE](LICENSE).
+GPL-3.0 — see [LICENSE](LICENSE). The README previously claimed MIT; the LICENSE file has
+been GPL-3.0 since the first commit. See
+[ADR-0006](docs/adr/0006-useragents-me-used-despite-no-licence.md).
 
 ## Disclaimer
 

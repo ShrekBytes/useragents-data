@@ -20,8 +20,10 @@ Accepted consequences, all deliberate:
 - The courtesy of contacting the site owner about intended use is owed, and its
   absence does not block shipping.
 
-The exposure is pre-existing: this repo has declared MIT over scraped content since
-its first commit. A clean JSON endpoint makes redistribution cheaper and therefore
+The exposure is pre-existing: this repo has carried a GPL-3.0 LICENSE since its first
+commit, while its README has always described it as MIT. Whichever is intended, that
+discrepancy needs settling deliberately rather than being left to whichever document a
+reader happens to open. A clean JSON endpoint makes redistribution cheaper and therefore
 more likely to be noticed, but it does not create the exposure.
 
 No source is load-bearing. Removing useragents.me entirely leaves a working, current,
