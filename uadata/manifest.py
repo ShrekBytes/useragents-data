@@ -1,8 +1,8 @@
 """What is shipping right now.
 
-This is the input to the staleness assertion (ADR-0005), and in Phase 2 also to
-synthetic UA generation. One manifest, so the two can never disagree about what
-"current" means — which is the whole point.
+This is the input to the staleness assertion and to synthetic UA generation
+(ADR-0005). One manifest, so the two can never disagree about what "current"
+means — which is the whole point.
 
 Sources are vendor release APIs. They never contribute user agent strings to the
 published data; a browser's version number is not a user agent.

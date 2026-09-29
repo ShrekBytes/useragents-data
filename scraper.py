@@ -27,7 +27,7 @@ from uadata.manifest import fetch_manifest
 from uadata.model import MixedKindsError, SourceError, SourceResult
 from uadata.sources import USER_AGENT, CrawlerUserAgents, UserAgentsMe, WinFuture23
 
-# Adding a source is the only thing Phase 2 should need to touch here.
+# Adding a source is the only thing that should need to change here.
 #
 # Independent by construction, not by claim: useragents.me measures frequency,
 # WinFuture23 is CC0 current-version traffic, crawler-user-agents is observed

@@ -1,9 +1,10 @@
 """Browser family detection and version extraction.
 
 Used by the staleness assertion to ask "how current is the newest thing in this
-dataset?", and in Phase 2 to validate synthetic UAs. Kept separate from the
-manifest because these answer different questions: this one reads versions out of
-strings we hold, the manifest asks the vendors what is current.
+dataset?", by the regression check to see whether a family went backwards, and by
+the generator to read a rendered string back. Kept separate from the manifest
+because these answer different questions: this one reads versions out of strings
+we hold, the manifest asks the vendors what is current.
 """
 
 from __future__ import annotations

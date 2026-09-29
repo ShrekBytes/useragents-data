@@ -31,9 +31,9 @@ CATEGORY_LABELS = {
 class SourceError(RuntimeError):
     """A source could not be ingested. Raised, never swallowed.
 
-    The previous implementation caught every exception per extraction and returned
-    an empty list. A source that silently returned nothing looked identical to a
-    source with nothing to report, which is how the dataset froze for 13 months.
+    A source that returns nothing must be distinguishable from a source that has
+    nothing to report, or a run publishes quietly on a subset of its inputs
+    without saying so (ADR-0003).
     """
 
 

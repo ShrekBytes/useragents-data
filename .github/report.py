@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 """Report what actually happened, and escalate a source that has been down.
 
-The previous workflow wrote "**Status:** Completed successfully" as a literal
-string, regardless of whether anything had been collected. This reads the
-published data and the run history instead, so the status shown is the scraper's,
-not the workflow's opinion of it.
+The status shown is read from the published data and the run history rather than
+asserted, so a run that collected nothing cannot report that it succeeded.
 
     report.py            markdown table for the step summary
     report.py --issue    open/update a single rolling issue for unhealthy sources

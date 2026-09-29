@@ -1,13 +1,21 @@
 """Merge sources, check the result, publish it.
 
-The checks are the point of this rewrite. The previous scraper produced a worse
-dataset than the day before and nothing objected, because nothing compared the
-output against any expectation. Four checks stand in for that:
+Nothing published here has been compared against any expectation until this
+module's checks have run. They are the reason the run can fail.
+
+`scraper.main` composes eight check functions, listed there, which emit one or
+more `Check` each — 21 on a healthy build, and a name in the README's table is
+a pattern rather than a single check. Two of them assert freshness against what
+vendors say is shipping and against what was published last time:
 
   freshness  is the newest thing we hold as new as what vendors say is shipping
   regression did anything we published last week disappear this week
-  shrinkage  did a source that is still up quietly start returning less
-  coverage   is every Device Category still published, and by whom
+
+The rest guard the dataset's other promises: that a source which is up has not
+quietly shrunk, that every Device Category is still published, that the budget
+holds, that no file mixes Observed with Synthetic, that the Synthetic set is
+neither empty nor a string already observed, and that every Synthetic string is
+identified as intended by two real parsers.
 
 Everything else here is plumbing.
 """
