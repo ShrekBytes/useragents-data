@@ -61,12 +61,6 @@ useragents-data/
 `common/` is **generated from** `data/` on every run. It is not maintained
 separately, so the two cannot drift apart.
 
-### `common/<category>.json` — legacy shape, unchanged keys
-
-Observed only. This file's records are bare strings and its keys have not changed since v1, so
-there is no `kind` on them; a test asserts that no Synthetic string can appear here, which it
-cannot: a Synthetic record carries no count, and this file publishes only measured strings.
-
 `data/` and `common/` hold **Observed** UAs: strings a source recorded from real
 traffic. `synthetic/` holds **Synthetic** UAs: strings we constructed from
 genuinely current product versions. They never share a file, and every record
@@ -148,6 +142,11 @@ measured, and every one of them carries `count: null`.
   "user_agents": ["Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36"]
 }
 ```
+
+Observed only, and its keys have not changed since v1, so its records carry no `kind`:
+they are bare strings. A test asserts no Synthetic string can appear here, which it
+cannot — a Synthetic record carries no count, and this file publishes only measured
+strings.
 
 Only strings the ordering source measured appear here, in its descending count order
 ([ADR-0009](docs/adr/0009-order-by-one-designated-source.md)). This file exists to

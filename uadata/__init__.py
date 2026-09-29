@@ -1,5 +1,5 @@
-"""Ingestion package for the user agent dataset."""
+"""Ingestion package for the user agent dataset.
 
-from .model import CATEGORIES, Record, SourceError, SourceResult, merge_records
-
-__all__ = ["CATEGORIES", "Record", "SourceError", "SourceResult", "merge_records"]
+Submodules only. Types are imported from the module that owns them
+(`uadata.model`, `uadata.manifest`), not re-exported from here.
+"""

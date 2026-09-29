@@ -78,5 +78,4 @@ jobs:
     - name: Report source health
       if: always()
       run: |
-        python .github/report.py >> "$GITHUB_STEP_SUMMARY"
-        python .github/report.py --issue >> /dev/null
+        python .github/report.py --issue >> "$GITHUB_STEP_SUMMARY"

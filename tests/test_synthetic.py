@@ -371,7 +371,7 @@ class FidelityTests(unittest.TestCase):
         self.generated, self.withheld = records()
 
     def parsed(self, parser, user_agents):
-        return fidelity.parse(parser, tuple(user_agents))
+        return fidelity.ADAPTERS[parser](tuple(user_agents))
 
     def test_both_parsers_identify_every_generated_string(self):
         for parser in fidelity.PARSERS:
@@ -568,7 +568,10 @@ class FidelityTests(unittest.TestCase):
         # did not happen is not a verification that passed, and the alternative here
         # is a Synthetic dataset nobody ever checked.
         with mock.patch.object(
-            fidelity, "parse", side_effect=fidelity.ParserUnavailable("node: not found")
+            fidelity,
+            "ADAPTERS",
+            {name: mock.Mock(side_effect=fidelity.ParserUnavailable("node: not found"))
+             for name in fidelity.PARSERS},
         ):
             checks = pipeline.check_fidelity(self.generated, CURRENT)
         self.assertEqual(len(checks), len(fidelity.PARSERS))
@@ -811,7 +814,7 @@ class PublishedCorpusTests(unittest.TestCase):
         )
         for parser in fidelity.PARSERS:
             with self.subTest(parser=parser):
-                parsed = fidelity.parse(parser, strings)
+                parsed = fidelity.ADAPTERS[parser](strings)
                 self.assertEqual(set(parsed), set(strings))
                 for payload in self.synthetic.values():
                     for row in payload["user_agents"]:

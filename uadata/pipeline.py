@@ -121,9 +121,6 @@ class Check:
     level: str  # "error" | "warning"
     detail: str
 
-    def to_json(self) -> dict[str, Any]:
-        return {"name": self.name, "ok": self.ok, "level": self.level, "detail": self.detail}
-
 
 def one_kind(records: list[Record], kind: str | None = None) -> str:
     """The single kind these records share, or refuse (ADR-0002).
@@ -416,10 +413,10 @@ def check_fidelity(records: list[Record], manifest: Manifest) -> list[Check]:
 
     checks = []
     user_agents = tuple(dict.fromkeys(r.user_agent for r in records))
-    for parser in fidelity.PARSERS:
+    for parser, adapter in fidelity.ADAPTERS.items():
         name = f"synthetic/fidelity/{parser}"
         try:
-            parsed = fidelity.parse(parser, user_agents)
+            parsed = adapter(user_agents)
         except fidelity.ParserUnavailable as exc:
             checks.append(Check(name, False, "error", f"unavailable: {exc}"))
             continue

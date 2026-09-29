@@ -1,8 +1,13 @@
 """Source plugins.
 
-A source is anything that can turn a remote service into categorised Records.
-Adding a source means adding an implementation here and listing it in
-`scraper.py` — nothing in the core pipeline changes.
+A source is anything that can turn a remote service into categorised Records: a
+`name`, and a `fetch(session) -> SourceResult`. Adding a source means adding an
+implementation here and listing it in `scraper.py` — nothing in the core pipeline
+changes.
+
+A source that measures frequency sets `count_source` on every record it measured;
+one that does not must leave `count` alone. Getting that wrong is not a formatting
+bug, it decides whether the record is ranked (ADR-0009).
 """
 
 from __future__ import annotations
@@ -10,7 +15,7 @@ from __future__ import annotations
 import re
 import time
 from datetime import datetime, timezone
-from typing import Any, Protocol
+from typing import Any
 
 import requests
 
@@ -23,19 +28,6 @@ TIMEOUT = 30
 # apart), so it is always discovered rather than computed. Computing it is how you
 # end up requesting a 404 on the week the archive has not rolled to.
 _WINDOW_RE = re.compile(r"/data/(\d{4}-\d{2}-\d{2})-to-(\d{4}-\d{2}-\d{2})-desktop\.json")
-
-
-class Source(Protocol):
-    """Turns a remote service into categorised Records.
-
-    A source that measures frequency sets `count_source` on every record it
-    measured; one that does not must leave `count` alone. Getting that wrong is
-    not a formatting bug, it decides whether the record is ranked (ADR-0009).
-    """
-
-    name: str
-
-    def fetch(self, session: requests.Session) -> SourceResult: ...
 
 
 def get_json(session: requests.Session, url: str) -> Any:

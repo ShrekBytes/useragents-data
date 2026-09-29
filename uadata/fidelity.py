@@ -35,7 +35,6 @@ REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 UAP_CORE = "uap-core"
 UA_PARSER = "ua-parser"
-PARSERS = (UAP_CORE, UA_PARSER)
 
 # Each parser's own spelling of the families we generate. These live here rather
 # than in the templates because they are facts about the parsers, not about the
@@ -179,10 +178,11 @@ ADAPTERS: dict[str, Callable[[tuple[str, ...]], dict[str, Parse]]] = {
     UA_PARSER: _ua_parser,
 }
 
-
-def parse(parser: str, user_agents: tuple[str, ...]) -> dict[str, Parse]:
-    """What `parser` made of each string, or why it could not be asked."""
-    return ADAPTERS[parser](user_agents)
+# The parsers this build must satisfy, in the order they are asked. Derived from
+# the registry rather than declared beside it, so the two cannot disagree about
+# which parsers exist. The order is the registry's insertion order and nothing
+# depends on it: `check_fidelity` walks the registry itself.
+PARSERS = tuple(ADAPTERS)
 
 
 def browser_family(parser: str, family: str, mobile: bool = False) -> str:
