@@ -1,13 +1,13 @@
 {
   "schema_version": 4,
   "kind": "observed",
-  "generated_at": "2026-10-03T11:06:47.124246+00:00",
+  "generated_at": "2026-10-10T11:55:43.042457+00:00",
   "category": "bot",
   "sources": [
     {
       "name": "useragents.me",
       "status": "failed",
-      "error": "2026-09-20-to-2026-09-27-desktop: expected a JSON list, got dict",
+      "error": "2026-10-04-to-2026-10-11-desktop: expected a JSON list, got dict",
       "collected_at": null,
       "records": 0,
       "by_category": {},
@@ -17,12 +17,12 @@
       "name": "winfuture23",
       "status": "ok",
       "error": null,
-      "collected_at": "2026-10-02T21:51:23.970Z",
+      "collected_at": "2026-10-08T21:51:15.480Z",
       "records": 150,
       "by_category": {
-        "desktop": 71,
-        "mobile": 65,
-        "tablet": 14
+        "desktop": 61,
+        "mobile": 72,
+        "tablet": 17
       },
       "meta": {
         "window": "48h"
@@ -32,7 +32,7 @@
       "name": "crawler-user-agents",
       "status": "ok",
       "error": null,
-      "collected_at": "2026-10-03T11:06:46.196583+00:00",
+      "collected_at": "2026-10-10T11:55:41.043946+00:00",
       "records": 2120,
       "by_category": {
         "bot": 2120
@@ -45,15 +45,15 @@
   "freshness": {
     "manifest": {
       "versions": {
-        "android": 154,
-        "edge_linux": 154,
-        "edge_macos": 154,
-        "edge_windows": 154,
+        "android": 156,
+        "edge_linux": 155,
+        "edge_macos": 155,
+        "edge_windows": 155,
         "firefox": 157,
         "firefox_esr": 140,
-        "linux": 154,
-        "mac": 154,
-        "windows": 154
+        "linux": 155,
+        "mac": 156,
+        "windows": 156
       },
       "errors": []
     },
