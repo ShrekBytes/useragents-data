@@ -56,17 +56,82 @@ def winfuture(device_type="computer", ua=CHROME_154, **extra):
     }
 
 
-def useragents_me():
-    return [
-        {
-            "user_agent": CHROME_155,
-            "os": "Windows 10",
-            "browser": "Chrome 155.0.0.0",
-            "device": None,
-            "count": 10116,
-            "percentage": 25.48,
+def measured_row(ua=CHROME_155):
+    return {
+        "useragent": ua,
+        "os": "Windows 10",
+        "browser": "Chrome 155.0.0.0",
+        "device": None,
+        "count": "10116",
+        "frequency": "25.48",
+    }
+
+
+def latest_row(ua=CHROME_154):
+    return {
+        "useragent": ua,
+        "os": "Windows 10",
+        "browser": "Chrome 154.0.0.0",
+        "device": None,
+    }
+
+
+def useragents_me_api():
+    return {
+        "response": {
+            "period": WINDOW,
+            "common": {
+                "desktop": {"data": [measured_row(CHROME_155)]},
+                "mobile": {"data": [measured_row(IPHONE)]},
+                "tablet": {"data": [measured_row(IPAD)]},
+                "bot": {"data": [measured_row(GOOGLEBOT)]},
+            },
+            "latest": {
+                "desktop": {"data": [latest_row(CHROME_154)]},
+                "mobile": {"data": [latest_row(IPHONE)]},
+                "tablet": {"data": [latest_row(IPAD)]},
+            },
         }
-    ]
+    }
+
+
+class UserAgentsMeTests(unittest.TestCase):
+    def fetch(self, payload, url=UserAgentsMe.api_url):
+        return UserAgentsMe().fetch(FakeSession({url: Response(payload)}))
+
+    def test_it_reads_common_and_latest_sections_from_api(self):
+        result = self.fetch(useragents_me_api())
+        self.assertEqual(result.meta, {"window": WINDOW})
+        self.assertEqual(
+            [r.user_agent for r in result.records["desktop"]],
+            [CHROME_155, CHROME_154],
+        )
+        self.assertEqual(result.records["desktop"][0].count_source, "useragents.me")
+        self.assertEqual(result.records["desktop"][0].count, 10116)
+        self.assertEqual(result.records["desktop"][0].percentage, 25.48)
+        self.assertIsNone(result.records["desktop"][1].count)
+        self.assertIsNone(result.records["desktop"][1].count_source)
+
+    def test_it_accepts_unwrapped_api_shape_and_list_buckets(self):
+        payload = useragents_me_api()["response"]
+        payload["common"]["desktop"] = [measured_row(CHROME_155)]
+        self.assertEqual(self.fetch(payload).records["desktop"][0].user_agent, CHROME_155)
+
+    def test_it_fails_for_malformed_api_buckets(self):
+        payload = useragents_me_api()
+        payload["response"]["common"]["desktop"] = {"items": []}
+        with self.assertRaises(SourceError) as caught:
+            self.fetch(payload)
+        self.assertIn("api.common.desktop.data", str(caught.exception))
+
+    def test_it_fails_non_integral_frequency_without_count(self):
+        payload = useragents_me_api()
+        payload["response"]["common"]["desktop"]["data"] = [
+            {"useragent": CHROME_155, "frequency": 20.79}
+        ]
+        with self.assertRaises(SourceError) as caught:
+            self.fetch(payload)
+        self.assertIn("non-integral frequency", str(caught.exception))
 
 
 class WinFuture23Tests(unittest.TestCase):
@@ -193,7 +258,7 @@ class SourceCoverageTests(unittest.TestCase):
     def routes(self):
         base = "https://useragents.me"
         routes = {
-            base: Response(None, text=f'<a href="{base}/data/{WINDOW}-desktop.json">x</a>'),
+            f"{base}/api": Response(useragents_me_api()),
             CrawlerUserAgents.url: Response(
                 [{"pattern": "Googlebot\\/", "instances": [GOOGLEBOT]}]
             ),
@@ -208,11 +273,6 @@ class SourceCoverageTests(unittest.TestCase):
                 }
             ),
         }
-        for category in ("desktop", "mobile", "tablet", "bot"):
-            routes[f"{base}/data/{WINDOW}-{category}.json"] = Response(useragents_me())
-            routes[f"{base}/data/{WINDOW}-latest-{category}.json"] = Response(
-                useragents_me()
-            )
         return routes
 
     def fetch_all(self, sources):
@@ -246,10 +306,12 @@ class SourceCoverageTests(unittest.TestCase):
         # Not a formatting detail: this name is what decides which counts may order
         # the published file, so a source that does not appear here is not a ranking.
         result = UserAgentsMe().fetch(FakeSession(self.routes()))
-        self.assertEqual(
-            {r.count_source for records in result.records.values() for r in records},
-            {"useragents.me"},
-        )
+        for category in ("desktop", "mobile", "tablet", "bot"):
+            with self.subTest(category=category):
+                self.assertEqual(result.records[category][0].count_source, "useragents.me")
+        for category in ("desktop", "mobile", "tablet"):
+            with self.subTest(category=f"latest-{category}"):
+                self.assertIsNone(result.records[category][1].count_source)
 
 
 if __name__ == "__main__":
