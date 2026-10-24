@@ -148,10 +148,20 @@ class UserAgentsMe:
         return response
 
     def _window(self, response: dict[str, Any]) -> str:
-        period = response.get("period") or response.get("window")
-        if not isinstance(period, str) or not period.strip():
-            raise SourceError("api: missing period/window string")
-        period = period.strip()
+        period = response.get("period")
+        if isinstance(period, dict):
+            start = period.get("start")
+            end = period.get("end")
+            if isinstance(start, str) and start.strip() and isinstance(end, str) and end.strip():
+                return f"{start.strip()}-to-{end.strip()}"
+            raise SourceError("api.period: expected start/end strings")
+        if isinstance(period, str):
+            raw = period
+        else:
+            raw = response.get("window")
+        if not isinstance(raw, str) or not raw.strip():
+            raise SourceError("api: missing period/window")
+        period = raw.strip()
         match = _PERIOD_RE.search(period)
         if match:
             return f"{match.group(1)}-to-{match.group(2)}"
@@ -200,18 +210,14 @@ class UserAgentsMe:
             row.get("percentage"), f"{what}: row {index} percentage"
         )
         frequency = row.get("frequency")
-        if count is None and frequency is not None:
-            count = self._integral_frequency(frequency, what, index)
-        elif percentage is None and frequency is not None:
+        if percentage is None and frequency is not None:
             percentage = self._value_float(
                 frequency, f"{what}: row {index} frequency"
             )
-        if required_measurement and count is None:
+        if required_measurement and count is None and percentage is None:
             raise SourceError(
-                f"{what}: row {index} has no count/frequency measurement"
+                f"{what}: row {index} has no count/percentage/frequency measurement"
             )
-        if count is None and percentage is not None:
-            raise SourceError(f"{what}: row {index} has a percentage but no count")
 
         return {
             "user_agent": user_agent,
@@ -240,17 +246,6 @@ class UserAgentsMe:
             return float(value)
         except (TypeError, ValueError) as exc:
             raise SourceError(f"{what}: {exc}") from exc
-
-    def _integral_frequency(self, value: Any, what: str, index: int) -> int:
-        try:
-            frequency = float(value)
-        except (TypeError, ValueError) as exc:
-            raise SourceError(f"{what}: row {index} frequency: {exc}") from exc
-        if not frequency.is_integer():
-            raise SourceError(
-                f"{what}: row {index} has non-integral frequency {value!r} with no count"
-            )
-        return int(frequency)
 
     def _to_record(self, row: dict) -> Record:
         def opt(value: Any, cast):

@@ -34,6 +34,7 @@ BOT_IN_A_BROWSER_COSTUME = (
     "(compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
 )
 
+PERIOD = {"start": "2026-09-20", "end": "2026-09-27"}
 WINDOW = "2026-09-20-to-2026-09-27"
 
 
@@ -56,15 +57,17 @@ def winfuture(device_type="computer", ua=CHROME_154, **extra):
     }
 
 
-def measured_row(ua=CHROME_155):
-    return {
+def measured_row(ua=CHROME_155, frequency="25.48", count=None, **extra):
+    row = {
         "useragent": ua,
         "os": "Windows 10",
         "browser": "Chrome 155.0.0.0",
         "device": None,
-        "count": "10116",
-        "frequency": "25.48",
+        "frequency": frequency,
     }
+    if count is not None:
+        row["count"] = count
+    return {**row, **extra}
 
 
 def latest_row(ua=CHROME_154):
@@ -79,7 +82,7 @@ def latest_row(ua=CHROME_154):
 def useragents_me_api():
     return {
         "response": {
-            "period": WINDOW,
+            "period": dict(PERIOD),
             "common": {
                 "desktop": {"data": [measured_row(CHROME_155)]},
                 "mobile": {"data": [measured_row(IPHONE)]},
@@ -106,16 +109,29 @@ class UserAgentsMeTests(unittest.TestCase):
             [r.user_agent for r in result.records["desktop"]],
             [CHROME_155, CHROME_154],
         )
-        self.assertEqual(result.records["desktop"][0].count_source, "useragents.me")
-        self.assertEqual(result.records["desktop"][0].count, 10116)
+        self.assertIsNone(result.records["desktop"][0].count_source)
+        self.assertIsNone(result.records["desktop"][0].count)
         self.assertEqual(result.records["desktop"][0].percentage, 25.48)
         self.assertIsNone(result.records["desktop"][1].count)
+        self.assertIsNone(result.records["desktop"][1].percentage)
         self.assertIsNone(result.records["desktop"][1].count_source)
 
     def test_it_accepts_unwrapped_api_shape_and_list_buckets(self):
         payload = useragents_me_api()["response"]
         payload["common"]["desktop"] = [measured_row(CHROME_155)]
         self.assertEqual(self.fetch(payload).records["desktop"][0].user_agent, CHROME_155)
+
+    def test_it_keeps_string_period_compatibility(self):
+        payload = useragents_me_api()
+        payload["response"]["period"] = WINDOW
+        self.assertEqual(self.fetch(payload).meta, {"window": WINDOW})
+
+    def test_it_rejects_malformed_structured_period(self):
+        payload = useragents_me_api()
+        payload["response"]["period"] = {"start": "2026-09-20"}
+        with self.assertRaises(SourceError) as caught:
+            self.fetch(payload)
+        self.assertIn("api.period", str(caught.exception))
 
     def test_it_fails_for_malformed_api_buckets(self):
         payload = useragents_me_api()
@@ -124,14 +140,22 @@ class UserAgentsMeTests(unittest.TestCase):
             self.fetch(payload)
         self.assertIn("api.common.desktop.data", str(caught.exception))
 
-    def test_it_fails_non_integral_frequency_without_count(self):
+    def test_it_treats_frequency_as_percentage_without_fabricating_count(self):
         payload = useragents_me_api()
         payload["response"]["common"]["desktop"]["data"] = [
             {"useragent": CHROME_155, "frequency": 20.79}
         ]
+        row = self.fetch(payload).records["desktop"][0]
+        self.assertIsNone(row.count)
+        self.assertIsNone(row.count_source)
+        self.assertEqual(row.percentage, 20.79)
+
+    def test_it_fails_common_rows_without_any_measurement_fields(self):
+        payload = useragents_me_api()
+        payload["response"]["common"]["desktop"]["data"] = [{"useragent": CHROME_155}]
         with self.assertRaises(SourceError) as caught:
             self.fetch(payload)
-        self.assertIn("non-integral frequency", str(caught.exception))
+        self.assertIn("no count/percentage/frequency measurement", str(caught.exception))
 
 
 class WinFuture23Tests(unittest.TestCase):
@@ -302,13 +326,13 @@ class SourceCoverageTests(unittest.TestCase):
         covered = {c for result in results for c in result.records}
         self.assertEqual(covered, {"desktop", "mobile", "tablet", "bot"})
 
-    def test_the_measured_source_is_the_one_the_ranking_uses(self):
-        # Not a formatting detail: this name is what decides which counts may order
-        # the published file, so a source that does not appear here is not a ranking.
+    def test_useragents_frequency_rows_are_percentages_without_count_attribution(self):
         result = UserAgentsMe().fetch(FakeSession(self.routes()))
         for category in ("desktop", "mobile", "tablet", "bot"):
             with self.subTest(category=category):
-                self.assertEqual(result.records[category][0].count_source, "useragents.me")
+                self.assertIsNone(result.records[category][0].count)
+                self.assertEqual(result.records[category][0].percentage, 25.48)
+                self.assertIsNone(result.records[category][0].count_source)
         for category in ("desktop", "mobile", "tablet"):
             with self.subTest(category=f"latest-{category}"):
                 self.assertIsNone(result.records[category][1].count_source)

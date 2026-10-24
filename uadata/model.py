@@ -56,9 +56,9 @@ class Record:
     it. `synthesized_from` names the template that built a Synthetic record, and
     is the only thing that can: no source witnessed it.
 
-    `count`/`percentage` are only populated by sources that measure real traffic.
-    A null count is not missing data to be filled in later; it means no source has
-    measured this string, and the record must never be presented as "most common".
+    `count` is only populated when a source reports an absolute frequency. Some
+    sources publish only shares; those can populate `percentage` without claiming a
+    rankable count.
 
     `count_source` names the source that measured them. It is not redundant with
     `sources`: a source can confirm a string exists without saying how often it
@@ -85,14 +85,12 @@ class Record:
                 f"count on {self.user_agent!r} names no source; a frequency is only "
                 "comparable within the source that measured it"
             )
-        if self.count is None and (self.percentage is not None or self.count_source):
+        if self.count is None and self.count_source:
             # The other direction is worse. A record claiming a source but no count
             # reads as a measured zero, and `measured_by` would sort it into the
-            # ranked block ahead of every real measurement. A percentage with
-            # nothing behind it is a share of a sample that was never stated.
+            # ranked block ahead of every real measurement.
             raise ValueError(
-                f"{self.user_agent!r} claims {self.count_source or 'a frequency'} "
-                "with no count behind it"
+                f"{self.user_agent!r} claims {self.count_source} with no count behind it"
             )
         if self.kind not in KINDS:
             raise ValueError(f"{self.user_agent!r} declares kind {self.kind!r}")
@@ -176,7 +174,11 @@ def merge_records(a: Record, b: Record, prefer: str | None = None) -> Record:
         measurement = second if second[2] == prefer else first
     else:
         measurement = first or second
-    count, percentage, count_source = measurement or (None, None, None)
+    if measurement is None:
+        count, count_source = None, None
+        percentage = a.percentage if a.percentage is not None else b.percentage
+    else:
+        count, percentage, count_source = measurement
 
     return Record(
         user_agent=a.user_agent,

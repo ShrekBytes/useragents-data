@@ -99,11 +99,11 @@ class AttributionTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             record(CHROME_155, count_source="a")
 
-    def test_a_percentage_on_its_own_is_refused(self):
-        # A share of a sample that was never stated, attributed to nobody. It
-        # would otherwise ride through the merge untouched and publish.
-        with self.assertRaises(ValueError):
-            record(CHROME_155, percentage=2.5)
+    def test_a_percentage_on_its_own_does_not_claim_a_measurement(self):
+        # Some sources publish shares but not absolute counts, which must not turn
+        # the record into a ranked measurement.
+        shared = record(CHROME_155, percentage=2.5)
+        self.assertEqual((shared.count, shared.percentage, shared.count_source), (None, 2.5, None))
 
     def test_a_count_with_a_percentage_keeps_them_together(self):
         both = record(CHROME_155, count=10, percentage=2.5, count_source="a")
