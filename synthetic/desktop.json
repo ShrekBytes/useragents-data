@@ -1,36 +1,34 @@
 {
   "schema_version": 4,
   "kind": "synthetic",
-  "generated_at": "2026-10-17T10:09:35.626448+00:00",
+  "generated_at": "2026-10-31T11:42:19.827755+00:00",
   "category": "desktop",
   "generated_from": {
     "manifest": {
       "versions": {
-        "android": 155,
-        "edge_linux": 155,
-        "edge_macos": 155,
-        "edge_windows": 155,
-        "firefox": 158,
+        "android": 156,
+        "edge_linux": 156,
+        "edge_macos": 156,
+        "edge_windows": 156,
+        "firefox": 159,
         "firefox_esr": 153,
-        "linux": 155,
-        "mac": 155,
-        "windows": 155
+        "linux": 156,
+        "mac": 156,
+        "windows": 156
       },
       "errors": []
     },
     "templates": [
       "edge-windows",
-      "edge-linux",
-      "firefox-firefox-windows",
-      "firefox-firefox_esr-mac"
+      "firefox-firefox-windows"
     ]
   },
   "user_agents": [
     {
-      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36 Edg/155.0.0.0",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
       "kind": "synthetic",
       "os": "Windows 10",
-      "browser": "Edge 155",
+      "browser": "Edge 156",
       "device": null,
       "count": null,
       "percentage": null,
@@ -39,40 +37,16 @@
       "synthesized_from": "edge-windows"
     },
     {
-      "user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36 Edg/155.0.0.0",
-      "kind": "synthetic",
-      "os": "Linux",
-      "browser": "Edge 155",
-      "device": null,
-      "count": null,
-      "percentage": null,
-      "count_source": null,
-      "sources": [],
-      "synthesized_from": "edge-linux"
-    },
-    {
-      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:158.0) Gecko/20100101 Firefox/158.0",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0",
       "kind": "synthetic",
       "os": "Windows 10",
-      "browser": "Firefox 158",
+      "browser": "Firefox 159",
       "device": null,
       "count": null,
       "percentage": null,
       "count_source": null,
       "sources": [],
       "synthesized_from": "firefox-firefox-windows"
-    },
-    {
-      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:153.0) Gecko/20100101 Firefox/153.0",
-      "kind": "synthetic",
-      "os": "macOS",
-      "browser": "Firefox 153",
-      "device": null,
-      "count": null,
-      "percentage": null,
-      "count_source": null,
-      "sources": [],
-      "synthesized_from": "firefox-firefox_esr-mac"
     }
   ]
 }

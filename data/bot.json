@@ -1,13 +1,13 @@
 {
   "schema_version": 4,
   "kind": "observed",
-  "generated_at": "2026-10-17T10:09:35.626448+00:00",
+  "generated_at": "2026-10-31T11:42:19.827755+00:00",
   "category": "bot",
   "sources": [
     {
       "name": "useragents.me",
       "status": "failed",
-      "error": "2026-10-04-to-2026-10-11-desktop: expected a JSON list, got dict",
+      "error": "2026-10-25-to-2026-11-01-desktop: expected a JSON list, got dict",
       "collected_at": null,
       "records": 0,
       "by_category": {},
@@ -17,12 +17,12 @@
       "name": "winfuture23",
       "status": "ok",
       "error": null,
-      "collected_at": "2026-10-16T21:51:09.975Z",
+      "collected_at": "2026-10-30T21:51:13.379Z",
       "records": 150,
       "by_category": {
-        "desktop": 61,
-        "mobile": 75,
-        "tablet": 14
+        "desktop": 71,
+        "mobile": 69,
+        "tablet": 10
       },
       "meta": {
         "window": "48h"
@@ -32,39 +32,39 @@
       "name": "crawler-user-agents",
       "status": "ok",
       "error": null,
-      "collected_at": "2026-10-17T10:09:33.454818+00:00",
-      "records": 2120,
+      "collected_at": "2026-10-31T11:42:18.785238+00:00",
+      "records": 2124,
       "by_category": {
-        "bot": 2120
+        "bot": 2124
       },
       "meta": {
-        "patterns": 1501
+        "patterns": 1505
       }
     }
   ],
   "freshness": {
     "manifest": {
       "versions": {
-        "android": 155,
-        "edge_linux": 155,
-        "edge_macos": 155,
-        "edge_windows": 155,
-        "firefox": 158,
+        "android": 156,
+        "edge_linux": 156,
+        "edge_macos": 156,
+        "edge_windows": 156,
+        "firefox": 159,
         "firefox_esr": 153,
-        "linux": 155,
-        "mac": 155,
-        "windows": 155
+        "linux": 156,
+        "mac": 156,
+        "windows": 156
       },
       "errors": []
     },
     "collection_max_majors": {
-      "edge": 155,
-      "opera": 137,
+      "edge": 158,
+      "opera": 139,
       "samsung": 31,
-      "chrome_ios": 156,
-      "firefox_ios": 158,
-      "chrome": 157,
-      "firefox": 159,
+      "chrome_ios": 157,
+      "firefox_ios": 159,
+      "chrome": 158,
+      "firefox": 160,
       "safari": 27
     },
     "in_this_file_max_majors": {
